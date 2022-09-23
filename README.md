@@ -5,8 +5,8 @@
 [![](http://img.youtube.com/vi/8e_IjCBkpwQ/0.jpg)](https://youtu.be/8e_IjCBkpwQ)
 
 
-## Demo Hololens App
-* [NrealLightWithOpenCVForUnityExample.zip](https://github.com/EnoxSoftware/NrealLightWithOpenCVForUnityExample/releases)
+## Demo NrealLight App
+* [NrealLightWithOpenCVForUnityExample.apk](https://github.com/EnoxSoftware/NrealLightWithOpenCVForUnityExample/releases)
 
 
 ## Environment
