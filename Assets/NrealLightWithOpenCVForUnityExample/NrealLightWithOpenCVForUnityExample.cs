@@ -103,5 +103,10 @@ namespace NrealLightWithOpenCVForUnityExample
         {
             SceneManager.LoadScene("NrealLibFaceDetectionV2Example");
         }
+
+        public void OnNrealHumanSegmentationExampleButtonClick()
+        {
+            SceneManager.LoadScene("NrealHumanSegmentationExample");
+        }
     }
 }

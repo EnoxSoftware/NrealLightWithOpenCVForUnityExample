@@ -201,7 +201,7 @@ namespace NrealLightWithOpenCVForUnityExample
                 faces = new MatOfRect();
 
                 cascade = new CascadeClassifier();
-                cascade.load(Utils.getFilePath("objdetect/haarcascade_frontalface_alt.xml"));
+                cascade.load(Utils.getFilePath("OpenCVForUnity/objdetect/haarcascade_frontalface_alt.xml"));
             }
 
             // Copy the raw image data into our target texture

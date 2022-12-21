@@ -13,8 +13,8 @@
 * Android (Galaxy S10+ SC-04L)
 * Nreal Light
 * Unity 2020.3.38f1+ (NRSDK supports the development environment of Unity 2018.4.X and above.)
-* [NRSDK](https://developer.nreal.ai/download)  Unity SDK 1.9.5 
-* [OpenCV for Unity](https://assetstore.unity.com/packages/tools/integration/opencv-for-unity-21088?aid=1011l4ehR) 2.4.8+ 
+* [NRSDK](https://developer.nreal.ai/download)  Unity SDK 1.10.0 
+* [OpenCV for Unity](https://assetstore.unity.com/packages/tools/integration/opencv-for-unity-21088?aid=1011l4ehR) 2.5.0+ 
 
 
 ## Setup
@@ -22,11 +22,12 @@
 1. Create a new project. (NrealLightWithOpenCVForUnityExample)
     * Change the platform to Android in the "Build Settings" window.
 1. Import the OpenCVForUnity.
-    * Setup the OpenCVForUnity. (Tools > OpenCV for Unity > Set Plugin Import Settings)
-    * Move the "OpenCVForUnity/StreamingAssets/objdetect" and "OpenCVForUnity/StreamingAssets/dnn" folders to the "Assets/StreamingAssets/" folder.
-    * Run the “download_dnn_models.py” in “Assets/StreamingAssets/dnn/” folder. ('python download_dnn_models.py YoloObjectDetectionExample' and 'python download_dnn_models.py LibFaceDetectionV2Example')
+    * Select MenuItem[Tools/OpenCV for Unity/Open Setup Tools].
+    * Click the [Move StreamingAssets Folder] button.
+    * Download files for examples ( LibFaceDetectionV2Example, YoloObjectDetectionExample and HumanSegmentationExample ) using the dnn module.[setup_dnn_module.pdf](https://github.com/EnoxSoftware/OpenCVForUnity/blob/master/Assets/OpenCVForUnity/StreamingAssets/OpenCVForUnity/dnn/setup_dnn_module.pdf)
+    * Leave the following files and delete the rest. ("StreamingAssets/OpenCVForUnity/objdetect/haarcascade_frontalface_alt.xml", "lbpcascade_ frontalface.xml","StreamingAssets/OpenCVForUnity/dnn/coco.names","yolov4-tiny.cfg","yolov4-tiny.weights","yufacedetectnet-open-v2.caffemodel","yufacedetectnet-open-v2.prototxt", "human_segmentation_pphumanseg_2021oct.onnx")
 1. Import the NRSDK.
-    * Download the latest release NRSDK unitypackage. [NRSDKForUnity_Release_1.9.x.unitypackage](https://developer.nreal.ai/download)
+    * Download the latest release NRSDK unitypackage. [NRSDKForUnity_Release_1.xx.x.unitypackage](https://developer.nreal.ai/download)
     * Setup the NRSDK. (See [Getting Started with NRSDK](https://nreal.gitbook.io/nrsdk/nrsdk-fundamentals/quickstart-for-android))
 1. Import the NrealLightWithOpenCVForUnityExample.unitypackage.
 1. Add the "Assets/NrealLightWithOpenCVForUnityExample/*.unity" files to the "Scenes In Build" list in the "Build Settings" window.
@@ -51,4 +52,6 @@
 ![screenshot05.jpg](screenshot05.jpg)
 
 ![screenshot05.jpg](screenshot06.jpg)
+
+![screenshot05.jpg](screenshot07.jpg)
 

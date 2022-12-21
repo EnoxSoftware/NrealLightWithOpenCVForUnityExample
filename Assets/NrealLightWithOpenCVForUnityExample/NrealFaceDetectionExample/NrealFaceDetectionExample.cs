@@ -206,23 +206,23 @@ namespace NrealLightWithOpenCVForUnityExample
 
 
             cascade = new CascadeClassifier();
-            cascade.load(Utils.getFilePath("objdetect/lbpcascade_frontalface.xml"));
+            cascade.load(Utils.getFilePath("OpenCVForUnity/objdetect/lbpcascade_frontalface.xml"));
 #if !UNITY_WSA_10_0 || UNITY_EDITOR
             // "empty" method is not working on the UWP platform.
             if (cascade.empty())
             {
-                Debug.LogError("cascade file is not loaded. Please copy from “OpenCVForUnity/StreamingAssets/” to “Assets/StreamingAssets/” folder. ");
+                Debug.LogError("cascade file is not loaded. Please copy from “OpenCVForUnity/StreamingAssets/OpenCVForUnity/objdetect/” to “Assets/StreamingAssets/OpenCVForUnity/objdetect/” folder. ");
             }
 #endif
 
             grayMat4Thread = new Mat();
             cascade4Thread = new CascadeClassifier();
-            cascade4Thread.load(Utils.getFilePath("objdetect/haarcascade_frontalface_alt.xml"));
+            cascade4Thread.load(Utils.getFilePath("OpenCVForUnity/objdetect/haarcascade_frontalface_alt.xml"));
 #if !UNITY_WSA_10_0 || UNITY_EDITOR
             // "empty" method is not working on the UWP platform.
             if (cascade4Thread.empty())
             {
-                Debug.LogError("cascade file is not loaded. Please copy from “OpenCVForUnity/StreamingAssets/” to “Assets/StreamingAssets/” folder. ");
+                Debug.LogError("cascade file is not loaded. Please copy from “OpenCVForUnity/StreamingAssets/OpenCVForUnity/objdetect/” to “Assets/StreamingAssets/OpenCVForUnity/objdetect/” folder. ");
             }
 #endif
         }
