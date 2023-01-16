@@ -14,7 +14,7 @@
 * Nreal Light
 * Unity 2020.3.38f1+ (NRSDK supports the development environment of Unity 2018.4.X and above.)
 * [NRSDK](https://developer.nreal.ai/download)  Unity SDK 1.10.0 
-* [OpenCV for Unity](https://assetstore.unity.com/packages/tools/integration/opencv-for-unity-21088?aid=1011l4ehR) 2.5.0+ 
+* [OpenCV for Unity](https://assetstore.unity.com/packages/tools/integration/opencv-for-unity-21088?aid=1011l4ehR) 2.5.1+ 
 
 
 ## Setup
@@ -32,7 +32,7 @@
 1. Import the NrealLightWithOpenCVForUnityExample.unitypackage.
 1. Add the "Assets/NrealLightWithOpenCVForUnityExample/*.unity" files to the "Scenes In Build" list in the "Build Settings" window.
 1. Build and Deploy to Android device. (See [8. Deploy to Nreal Device](https://nreal.gitbook.io/nrsdk/nrsdk-fundamentals/quickstart-for-android#8.-deploy-to-nreal-device))
-    *  (Print the AR marker "CanonicalMarker-d10-i1-sp500-bb1.pdf" and "ChArUcoBoard-mx5-my7-d10-os1000-bb1.pdf" on an A4 size paper)
+    *  (Print the AR marker "CanonicalMarker-d10-i1-sp500-bb1.pdf" on an A4 size paper)
 
 
 |Project Assets|Build Settings|

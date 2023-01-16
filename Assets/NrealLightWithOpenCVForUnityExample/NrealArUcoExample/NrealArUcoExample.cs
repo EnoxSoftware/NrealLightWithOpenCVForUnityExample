@@ -2,12 +2,12 @@
 
 using NrealLightWithOpenCVForUnity.UnityUtils.Helper;
 using NRKernal;
-using OpenCVForUnity.ArucoModule;
 using OpenCVForUnity.Calib3dModule;
 using OpenCVForUnity.CoreModule;
 using OpenCVForUnity.ImgprocModule;
 using OpenCVForUnity.UnityUtils;
 using OpenCVForUnity.UnityUtils.Helper;
+using OpenCVForUnity.ObjdetectModule;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -70,7 +70,7 @@ namespace NrealLightWithOpenCVForUnityExample
         /// <summary>
         /// The dictionary identifier.
         /// </summary>
-        public int dictionaryId = Aruco.DICT_6X6_250;
+        public int dictionaryId = Objdetect.DICT_6X6_250;
 
         /// <summary>
         /// The length of the markers' side. Normally, unit is meters.
@@ -126,46 +126,6 @@ namespace NrealLightWithOpenCVForUnityExample
         Matrix4x4 ARM;
 
         /// <summary>
-        /// The identifiers.
-        /// </summary>
-        Mat ids;
-
-        /// <summary>
-        /// The corners.
-        /// </summary>
-        List<Mat> corners;
-
-        /// <summary>
-        /// The rejected corners.
-        /// </summary>
-        List<Mat> rejectedCorners;
-
-        /// <summary>
-        /// The rvecs.
-        /// </summary>
-        Mat rvecs;
-
-        /// <summary>
-        /// The tvecs.
-        /// </summary>
-        Mat tvecs;
-
-        /// <summary>
-        /// The rot mat.
-        /// </summary>
-        Mat rotMat;
-
-        /// <summary>
-        /// The detector parameters.
-        /// </summary>
-        DetectorParameters detectorParams;
-
-        /// <summary>
-        /// The dictionary.
-        /// </summary>
-        Dictionary dictionary;
-
-        /// <summary>
         /// The webcam texture to mat helper.
         /// </summary>
         NRCamTextureToMatHelper webCamTextureToMatHelper;
@@ -174,6 +134,16 @@ namespace NrealLightWithOpenCVForUnityExample
         /// The image optimization helper.
         /// </summary>
         ImageOptimizationHelper imageOptimizationHelper;
+
+        // for CanonicalMarker.
+        Mat ids;
+        List<Mat> corners;
+        List<Mat> rejectedCorners;
+        Dictionary dictionary;
+        ArucoDetector arucoDetector;
+
+        Mat rvecs;
+        Mat tvecs;
 
         Mat rgbMat4preview;
         Texture2D texture;
@@ -349,12 +319,18 @@ namespace NrealLightWithOpenCVForUnityExample
             Debug.Log("principalPoint " + principalPoint.ToString());
             Debug.Log("aspectratio " + aspectratio[0]);
 
+
             ids = new Mat();
             corners = new List<Mat>();
             rejectedCorners = new List<Mat>();
-            rvecs = new Mat();
-            tvecs = new Mat();
-            rotMat = new Mat(3, 3, CvType.CV_64FC1);
+            rvecs = new Mat(1, 10, CvType.CV_64FC3);
+            tvecs = new Mat(1, 10, CvType.CV_64FC3);
+            dictionary = Objdetect.getPredefinedDictionary(dictionaryId);
+
+            DetectorParameters detectorParams = new DetectorParameters();
+            detectorParams.set_useAruco3Detection(true);
+            RefineParameters refineParameters = new RefineParameters(10f, 3f, true);
+            arucoDetector = new ArucoDetector(dictionary, detectorParams, refineParameters);
 
 
             transformationM = new Matrix4x4();
@@ -364,10 +340,6 @@ namespace NrealLightWithOpenCVForUnityExample
 
             invertZM = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, new Vector3(1, 1, -1));
             //Debug.Log("invertZM " + invertZM.ToString());
-
-            detectorParams = DetectorParameters.create();
-            dictionary = Aruco.getPredefinedDictionary(dictionaryId);
-
 
             rgbMat4preview = new Mat();
         }
@@ -395,6 +367,10 @@ namespace NrealLightWithOpenCVForUnityExample
 
             hasUpdatedARTransformMatrix = false;
 
+
+            if (arucoDetector != null)
+                arucoDetector.Dispose();
+
             if (ids != null)
                 ids.Dispose();
             foreach (var item in corners)
@@ -411,8 +387,6 @@ namespace NrealLightWithOpenCVForUnityExample
                 rvecs.Dispose();
             if (tvecs != null)
                 tvecs.Dispose();
-            if (rotMat != null)
-                rotMat.Dispose();
 
             if (rgbMat4preview != null)
                 rgbMat4preview.Dispose();
@@ -503,40 +477,59 @@ namespace NrealLightWithOpenCVForUnityExample
         private void DetectARUcoMarker()
         {
             // Detect markers and estimate Pose
-            // undistort image.
             Calib3d.undistort(downScaleMat, downScaleMat, camMatrix, distCoeffs);
-            // detect markers.
-            Aruco.detectMarkers(downScaleMat, dictionary, corners, ids, detectorParams, rejectedCorners);
+            arucoDetector.detectMarkers(downScaleMat, corners, ids, rejectedCorners);
 
             if (applyEstimationPose && ids.total() > 0)
             {
-                Aruco.estimatePoseSingleMarkers(corners, markerLength, camMatrix, distCoeffs, rvecs, tvecs);
+                if (rvecs.cols() < ids.total())
+                    rvecs.create(1, (int)ids.total(), CvType.CV_64FC3);
+                if (tvecs.cols() < ids.total())
+                    tvecs.create(1, (int)ids.total(), CvType.CV_64FC3);
 
-                for (int i = 0; i < ids.total(); i++)
+                using (MatOfPoint3f objPoints = new MatOfPoint3f(
+                    new Point3(-markerLength / 2f, markerLength / 2f, 0),
+                    new Point3(markerLength / 2f, markerLength / 2f, 0),
+                    new Point3(markerLength / 2f, -markerLength / 2f, 0),
+                    new Point3(-markerLength / 2f, -markerLength / 2f, 0)
+                ))
                 {
-                    //This example can display ARObject on only first detected marker.
-                    if (i == 0)
+                    for (int i = 0; i < ids.total(); i++)
                     {
-                        // Convert to unity pose data.
-                        double[] rvecArr = new double[3];
-                        rvecs.get(0, 0, rvecArr);
-                        double[] tvecArr = new double[3];
-                        tvecs.get(0, 0, tvecArr);
-                        PoseData poseData = ARUtils.ConvertRvecTvecToPoseData(rvecArr, tvecArr);
+                        using (Mat rvec = new Mat(3, 1, CvType.CV_64FC1))
+                        using (Mat tvec = new Mat(3, 1, CvType.CV_64FC1))
+                        using (Mat corner_4x1 = corners[i].reshape(2, 4)) // 1*4*CV_32FC2 => 4*1*CV_32FC2
+                        using (MatOfPoint2f imagePoints = new MatOfPoint2f(corner_4x1))
+                        {
+                            // Calculate pose for each marker
+                            Calib3d.solvePnP(objPoints, imagePoints, camMatrix, distCoeffs, rvec, tvec);
 
-                        // Create transform matrix.
-                        transformationM = Matrix4x4.TRS(poseData.pos, poseData.rot, Vector3.one);
+                            rvec.reshape(3, 1).copyTo(new Mat(rvecs, new OpenCVForUnity.CoreModule.Rect(0, i, 1, 1)));
+                            tvec.reshape(3, 1).copyTo(new Mat(tvecs, new OpenCVForUnity.CoreModule.Rect(0, i, 1, 1)));
 
-                        // Right-handed coordinates system (OpenCV) to left-handed one (Unity)
-                        // https://stackoverflow.com/questions/30234945/change-handedness-of-a-row-major-4x4-transformation-matrix
-                        ARM = invertYM * transformationM * invertYM;
+                            // This example can display the ARObject on only first detected marker.
+                            if (i == 0)
+                            {
+                                // Convert to unity pose data.
+                                double[] rvecArr = new double[3];
+                                rvec.get(0, 0, rvecArr);
+                                double[] tvecArr = new double[3];
+                                tvec.get(0, 0, tvecArr);
+                                PoseData poseData = ARUtils.ConvertRvecTvecToPoseData(rvecArr, tvecArr);
 
-                        // Apply Y-axis and Z-axis refletion matrix. (Adjust the posture of the AR object)
-                        ARM = ARM * invertYM * invertZM;
+                                // Create transform matrix.
+                                transformationM = Matrix4x4.TRS(poseData.pos, poseData.rot, Vector3.one);
 
-                        hasUpdatedARTransformMatrix = true;
+                                // Right-handed coordinates system (OpenCV) to left-handed one (Unity)
+                                // https://stackoverflow.com/questions/30234945/change-handedness-of-a-row-major-4x4-transformation-matrix
+                                ARM = invertYM * transformationM * invertYM;
 
-                        break;
+                                // Apply Y-axis and Z-axis refletion matrix. (Adjust the posture of the AR object)
+                                ARM = ARM * invertYM * invertZM;
+
+                                hasUpdatedARTransformMatrix = true;
+                            }
+                        }
                     }
                 }
             }
@@ -550,7 +543,7 @@ namespace NrealLightWithOpenCVForUnityExample
 
                 if (ids.total() > 0)
                 {
-                    Aruco.drawDetectedMarkers(rgbMat4preview, corners, ids, new Scalar(0, 255, 0));
+                    Objdetect.drawDetectedMarkers(rgbMat4preview, corners, ids, new Scalar(0, 255, 0));
 
                     if (applyEstimationPose)
                     {
@@ -661,7 +654,7 @@ namespace NrealLightWithOpenCVForUnityExample
         /// </summary>
         public void OnChangeCameraButtonClick()
         {
-            webCamTextureToMatHelper.requestedIsFrontFacing = !webCamTextureToMatHelper.IsFrontFacing();
+            webCamTextureToMatHelper.requestedIsFrontFacing = !webCamTextureToMatHelper.requestedIsFrontFacing;
         }
 
         /// <summary>
