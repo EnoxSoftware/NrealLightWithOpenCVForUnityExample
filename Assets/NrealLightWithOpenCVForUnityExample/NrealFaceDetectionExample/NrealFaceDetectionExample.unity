@@ -697,6 +697,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: FPSCanvas
       objectReference: {fileID: 0}
+    - target: {fileID: 114491031132128258, guid: 67d84a29ffd5ca443ae62b9736795f1b, type: 3}
+      propertyPath: m_PresetInfoIsWorld
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 224453369079705500, guid: 67d84a29ffd5ca443ae62b9736795f1b, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5

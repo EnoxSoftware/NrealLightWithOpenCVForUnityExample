@@ -666,6 +666,10 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 114491031132128258, guid: 67d84a29ffd5ca443ae62b9736795f1b, type: 3}
+      propertyPath: m_PresetInfoIsWorld
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 224453369079705500, guid: 67d84a29ffd5ca443ae62b9736795f1b, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -2976,7 +2980,6 @@ MonoBehaviour:
   flipHorizontalToggle: {fileID: 1530880838}
   applyComicFilter: 0
   applyComicFilterToggle: {fileID: 446566292}
-  mainCamera: {fileID: 2088836769}
 --- !u!114 &1709852089
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3410,8 +3413,3 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 665d8158924bd2648a94fb3f87691bbb, type: 3}
---- !u!20 &2088836769 stripped
-Camera:
-  m_CorrespondingSourceObject: {fileID: 20880588574554076, guid: 665d8158924bd2648a94fb3f87691bbb, type: 3}
-  m_PrefabInstance: {fileID: 2088836768}
-  m_PrefabAsset: {fileID: 0}

@@ -497,7 +497,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1709852087}
-        m_TargetAssemblyTypeName: NrealLightWithOpenCVForUnityExample.NrealDnnObjectDetectionExample,
+        m_TargetAssemblyTypeName: NrealLightWithOpenCVForUnityExample.NrealObjectDetectionYOLOv4Example,
           Assembly-CSharp
         m_MethodName: OnDisplayCameraImageToggleValueChanged
         m_Mode: 1
@@ -773,7 +773,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1709852087}
-        m_TargetAssemblyTypeName: NrealLightWithOpenCVForUnityExample.NrealDnnObjectDetectionExample,
+        m_TargetAssemblyTypeName: NrealLightWithOpenCVForUnityExample.NrealObjectDetectionYOLOv4Example,
           Assembly-CSharp
         m_MethodName: OnPlayButtonClick
         m_Mode: 1
@@ -836,7 +836,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4275651716754104, guid: 665d8158924bd2648a94fb3f87691bbb, type: 3}
       propertyPath: m_RootOrder
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4275651716754104, guid: 665d8158924bd2648a94fb3f87691bbb, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1221,7 +1221,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1709852087}
-        m_TargetAssemblyTypeName: NrealLightWithOpenCVForUnityExample.NrealDnnObjectDetectionExample,
+        m_TargetAssemblyTypeName: NrealLightWithOpenCVForUnityExample.NrealObjectDetectionYOLOv4Example,
           Assembly-CSharp
         m_MethodName: OnChangeCameraButtonClick
         m_Mode: 1
@@ -1578,7 +1578,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4808320353365586, guid: ad152f08ed7eb6e4abd93376a0203e38, type: 3}
       propertyPath: m_RootOrder
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4808320353365586, guid: ad152f08ed7eb6e4abd93376a0203e38, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1688,7 +1688,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1709852087}
-        m_TargetAssemblyTypeName: NrealLightWithOpenCVForUnityExample.NrealDnnObjectDetectionExample,
+        m_TargetAssemblyTypeName: NrealLightWithOpenCVForUnityExample.NrealObjectDetectionYOLOv4Example,
           Assembly-CSharp
         m_MethodName: OnEnableFrameSkipToggleValueChanged
         m_Mode: 1
@@ -1847,7 +1847,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1709852087}
-        m_TargetAssemblyTypeName: NrealLightWithOpenCVForUnityExample.NrealDnnObjectDetectionExample,
+        m_TargetAssemblyTypeName: NrealLightWithOpenCVForUnityExample.NrealObjectDetectionYOLOv4Example,
           Assembly-CSharp
         m_MethodName: OnPauseButtonClick
         m_Mode: 1
@@ -1989,7 +1989,7 @@ GameObject:
   - component: {fileID: 1709852086}
   - component: {fileID: 1709852088}
   m_Layer: 0
-  m_Name: NrealLibFaceDetectionV2Example
+  m_Name: NrealObjectDetectionYOLOv4Example
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2098,7 +2098,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1709852087}
-        m_TargetAssemblyTypeName: NrealLightWithOpenCVForUnityExample.DnnObjectDetectionWebCamTextureExample,
+        m_TargetAssemblyTypeName: NrealLightWithOpenCVForUnityExample.NrealObjectDetectionYOLOv4Example,
           Assembly-CSharp
         m_MethodName: OnWebCamTextureToMatHelperInitialized
         m_Mode: 1
@@ -2114,7 +2114,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1709852087}
-        m_TargetAssemblyTypeName: NrealLightWithOpenCVForUnityExample.DnnObjectDetectionWebCamTextureExample,
+        m_TargetAssemblyTypeName: NrealLightWithOpenCVForUnityExample.NrealObjectDetectionYOLOv4Example,
           Assembly-CSharp
         m_MethodName: OnWebCamTextureToMatHelperDisposed
         m_Mode: 1
@@ -2130,7 +2130,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1709852087}
-        m_TargetAssemblyTypeName: NrealLightWithOpenCVForUnityExample.DnnObjectDetectionWebCamTextureExample,
+        m_TargetAssemblyTypeName: NrealLightWithOpenCVForUnityExample.NrealObjectDetectionYOLOv4Example,
           Assembly-CSharp
         m_MethodName: OnWebCamTextureToMatHelperErrorOccurred
         m_Mode: 0
@@ -2152,25 +2152,16 @@ MonoBehaviour:
   m_GameObject: {fileID: 1709852081}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 701a3f5d55e57a04a8f7b1a29e1ca8fd, type: 3}
+  m_Script: {fileID: 11500000, guid: 1e92f5bbb1585ca4fac252431867a2f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: yufacedetectnet-open-v2.caffemodel
-  config: yufacedetectnet-open-v2.prototxt
-  classes: 
-  classesList: []
-  confThreshold: 0.5
-  nmsThreshold: 0.5
-  scale: 1
-  mean:
-    val:
-    - 0
-    - 0
-    - 0
-    - 0
-  swapRB: 0
-  inpWidth: 320
-  inpHeight: 240
+  model: yolov4-tiny.weights
+  config: yolov4-tiny.cfg
+  classes: coco.names
+  confThreshold: 0.25
+  nmsThreshold: 0.45
+  inpWidth: 416
+  inpHeight: 416
   enableFrameSkip: 1
   enableFrameSkipToggle: {fileID: 1635194723}
   displayCameraImage: 0
@@ -2294,7 +2285,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1709852087}
-        m_TargetAssemblyTypeName: NrealLightWithOpenCVForUnityExample.NrealDnnObjectDetectionExample,
+        m_TargetAssemblyTypeName: NrealLightWithOpenCVForUnityExample.NrealObjectDetectionYOLOv4Example,
           Assembly-CSharp
         m_MethodName: OnBackButtonClick
         m_Mode: 1
@@ -2449,7 +2440,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1709852087}
-        m_TargetAssemblyTypeName: NrealLightWithOpenCVForUnityExample.NrealDnnObjectDetectionExample,
+        m_TargetAssemblyTypeName: NrealLightWithOpenCVForUnityExample.NrealObjectDetectionYOLOv4Example,
           Assembly-CSharp
         m_MethodName: OnStopButtonClick
         m_Mode: 1

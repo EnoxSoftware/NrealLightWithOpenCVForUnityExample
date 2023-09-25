@@ -94,14 +94,14 @@ namespace NrealLightWithOpenCVForUnityExample
         {
             SceneManager.LoadScene("NrealArUcoExample");
         }
-        public void OnNrealYoloObjectDetectionExampleButtonClick()
+        public void OnNrealObjectDetectionYOLOv4ExampleButtonClick()
         {
-            SceneManager.LoadScene("NrealYoloObjectDetectionExample");
+            SceneManager.LoadScene("NrealObjectDetectionYOLOv4Example");
         }
 
-        public void OnNrealLibFaceDetectionV2ExampleButtonClick()
+        public void OnNrealFaceDetectorYNExampleButtonClick()
         {
-            SceneManager.LoadScene("NrealLibFaceDetectionV2Example");
+            SceneManager.LoadScene("NrealFaceDetectorYNExample");
         }
 
         public void OnNrealHumanSegmentationExampleButtonClick()

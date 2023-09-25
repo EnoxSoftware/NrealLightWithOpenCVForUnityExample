@@ -11,10 +11,10 @@
 
 ## Environment
 * Android (Galaxy S10+ SC-04L)
-* Nreal Light
-* Unity 2020.3.38f1+ (NRSDK supports the development environment of Unity 2018.4.X and above.)
-* [NRSDK](https://developer.nreal.ai/download)  Unity SDK 1.10.0 
-* [OpenCV for Unity](https://assetstore.unity.com/packages/tools/integration/opencv-for-unity-21088?aid=1011l4ehR) 2.5.1+ 
+* Nreal Light (XREAL Light)
+* Unity 2020.3.48f1+ (NRSDK supports the development environment of Unity 2018.4.X and above.)
+* [NRSDK](https://developer.nreal.ai/download)  Unity SDK 1.10.2 
+* [OpenCV for Unity](https://assetstore.unity.com/packages/tools/integration/opencv-for-unity-21088?aid=1011l4ehR) 2.5.6+ 
 
 
 ## Setup
@@ -23,9 +23,10 @@
     * Change the platform to Android in the "Build Settings" window.
 1. Import the OpenCVForUnity.
     * Select MenuItem[Tools/OpenCV for Unity/Open Setup Tools].
+    * Click the [Open Example Assets Downloader] button.
+    * Download files for examples ( HumanSegmentationExample, ObjectDetectionYolov4Example and FaceDetectionYNWebCamExample ) using the dnn, objdetect module.
     * Click the [Move StreamingAssets Folder] button.
-    * Download files for examples ( LibFaceDetectionV2Example, YoloObjectDetectionExample and HumanSegmentationExample ) using the dnn module.[setup_dnn_module.pdf](https://github.com/EnoxSoftware/OpenCVForUnity/blob/master/Assets/OpenCVForUnity/StreamingAssets/OpenCVForUnity/dnn/setup_dnn_module.pdf)
-    * Leave the following files and delete the rest. ("StreamingAssets/OpenCVForUnity/objdetect/haarcascade_frontalface_alt.xml", "lbpcascade_ frontalface.xml","StreamingAssets/OpenCVForUnity/dnn/coco.names","yolov4-tiny.cfg","yolov4-tiny.weights","yufacedetectnet-open-v2.caffemodel","yufacedetectnet-open-v2.prototxt", "human_segmentation_pphumanseg_2021oct.onnx")
+    * Leave the following files and delete the rest. ("StreamingAssets/OpenCVForUnity/objdetect/haarcascade_frontalface_alt.xml", "lbpcascade_ frontalface.xml", "face_detection_yunet_2023mar.onnx","StreamingAssets/OpenCVForUnity/dnn/coco.names","yolov4-tiny.cfg","yolov4-tiny.weights","human_segmentation_pphumanseg_2023mar.onnx")
 1. Import the NRSDK.
     * Download the latest release NRSDK unitypackage. [NRSDKForUnity_Release_1.xx.x.unitypackage](https://developer.nreal.ai/download)
     * Setup the NRSDK. (See [Getting Started with NRSDK](https://nreal.gitbook.io/nrsdk/nrsdk-fundamentals/quickstart-for-android))
@@ -35,9 +36,9 @@
     *  (Print the AR marker "CanonicalMarker-d10-i1-sp500-bb1.pdf" on an A4 size paper)
 
 
-|Project Assets|Build Settings|
+|SetupTools_AssetsDownloader|Project Assets|Build Settings|
 |---|---|
-|![ProjectAssets.jpg](ProjectAssets.jpg)|![BuildSettings.jpg](BuildSettings.jpg)|
+|![SetupTools_AssetsDownloader.jpg](SetupTools_AssetsDownloader.jpg)|![ProjectAssets.jpg](ProjectAssets.jpg)|![BuildSettings.jpg](BuildSettings.jpg)|
 
 
 ## ScreenShot

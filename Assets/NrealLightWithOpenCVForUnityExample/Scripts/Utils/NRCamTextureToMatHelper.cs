@@ -13,8 +13,8 @@ namespace NrealLightWithOpenCVForUnity.UnityUtils.Helper
 {
     /// <summary>
     /// NRCamTexture to mat helper.
-    /// v 1.0.0
-    /// Depends on NRSDK v 1.9.5 (https://nreal.gitbook.io/nrsdk/nrsdk-fundamentals/core-features).
+    /// v 1.0.1
+    /// Depends on NRSDK v 1.10.2 (https://nreal.gitbook.io/nrsdk/nrsdk-fundamentals/core-features).
     /// Depends on OpenCVForUnity version 2.4.1 (WebCamTextureToMatHelper v 1.1.2) or later.
     /// 
     /// By setting outputColorFormat to RGB, processing that does not include extra color conversion is performed.
@@ -88,6 +88,8 @@ namespace NrealLightWithOpenCVForUnity.UnityUtils.Helper
         new protected ColorFormat baseColorFormat = ColorFormat.RGB;
 
         protected Matrix4x4 invertZM = Matrix4x4.TRS(new Vector3(0, 0, 0), Quaternion.Euler(0, 0, 0), new Vector3(1, 1, -1));
+
+        protected Matrix4x4 rgbCameraPoseFromHeadMatrix = Matrix4x4.identity;
 
         protected Matrix4x4 centerEyePoseFromHeadMatrix = Matrix4x4.identity;
 
@@ -174,19 +176,18 @@ namespace NrealLightWithOpenCVForUnity.UnityUtils.Helper
                     initCoroutine = null;
 
 
-                    // Get centerEyePose from Head Matrix
-                    //
-                    // Get physical RGBCamera position (offset position from Head). For some reason, when this value is used in the calculation, the position is shifted.
-                    //Pose camPos = NRFrame.GetDevicePoseFromHead(NativeDevice.RGB_CAMERA);// Get Pose RGBCamera From Head
-                    //centerEyePoseFromHeadMatrix = Matrix4x4.TRS(camPos.position, camPos.rotation, Vector3.one);
-                    //
-                    // or
-                    //
+                    // Get physical RGBCamera position (offset position from Head).
+                    Pose camPos = NRFrame.GetDevicePoseFromHead(NativeDevice.RGB_CAMERA);
+                    rgbCameraPoseFromHeadMatrix = Matrix4x4.TRS(camPos.position, camPos.rotation, Vector3.one);
+                    // The position offset in the Z direction seemed too large, so code to change it to the same value as the center eye.
+                    // (This will greatly improve the misalignment with reality during projection, but it is not perfect.)
+                    //rgbCameraPoseFromHeadMatrix.m23 = -0.00678f;
+
+                    // Get CenterEyePose (between left eye and right eye) position (offset position from Head).
                     var eyeposeFromHead = NRFrame.EyePoseFromHead;
                     Vector3 localPosition = (eyeposeFromHead.LEyePose.position + eyeposeFromHead.REyePose.position) * 0.5f;
                     Quaternion localRotation = Quaternion.Lerp(eyeposeFromHead.LEyePose.rotation, eyeposeFromHead.REyePose.rotation, 0.5f);
                     centerEyePoseFromHeadMatrix = Matrix4x4.TRS(localPosition, localRotation, Vector3.one);
-                    //
 
                     // Get projection Matrix
                     //
@@ -198,6 +199,11 @@ namespace NrealLightWithOpenCVForUnity.UnityUtils.Helper
                     //
                     bool result;
                     EyeProjectMatrixData pm = NRFrame.GetEyeProjectMatrix(out result, 0.3f, 1000f);
+                    while (!result)
+                    {
+                        yield return new WaitForEndOfFrame();
+                        pm = NRFrame.GetEyeProjectMatrix(out result, 0.3f, 1000f);
+                    }
                     projectionMatrix = pm.RGBEyeMatrix;
                     //
 
@@ -305,14 +311,18 @@ namespace NrealLightWithOpenCVForUnity.UnityUtils.Helper
         public override Matrix4x4 GetCameraToWorldMatrix()
         {
             //
-            //Pose headPose = NRFrame.HeadPose; // Get Head pose
-            //Matrix4x4 HeadPoseM = Matrix4x4.TRS(headPose.position, headPose.rotation, Vector3.one);
-            //Matrix4x4 localToWorldMatrix = HeadPoseM * centerEyePoseFromHeadMatrix;
+            // RGB camera position is used. However, even if this correct value is used in the calculation, the projected AR object will appear slightly offset upward.
+            // https://community.xreal.com/t/screen-to-world-point-from-centre-cam/1740/6
+            Pose headPose = NRFrame.HeadPose;
+            Matrix4x4 HeadPoseM = Matrix4x4.TRS(headPose.position, headPose.rotation, Vector3.one);
+            Matrix4x4 localToWorldMatrix = HeadPoseM * rgbCameraPoseFromHeadMatrix;
             //
             // or
-            // The values obtained by this method generally match reality, but I think they are slightly off to the left.
-            Pose centerEyePose = NRFrame.CenterEyePose;
-            Matrix4x4 localToWorldMatrix = Matrix4x4.TRS(centerEyePose.position, centerEyePose.rotation, Vector3.one);
+            //
+            // Center eye position is used. The projected positions obtained with this method are generally consistent with reality, but are slightly off to the left.
+            //Pose headPose = NRFrame.HeadPose;
+            //Matrix4x4 HeadPoseM = Matrix4x4.TRS(headPose.position, headPose.rotation, Vector3.one);
+            //Matrix4x4 localToWorldMatrix = HeadPoseM * centerEyePoseFromHeadMatrix;
             //
 
             // Transform localToWorldMatrix to cameraToWorldMatrix.

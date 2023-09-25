@@ -79,6 +79,16 @@ namespace NrealLightWithOpenCVForUnityExample
         MatOfRect faces;
 
 
+        public GameObject XREAL_Head;
+        public GameObject XREAL_RGBCamera;
+        public GameObject XREAL_LEye;
+        public GameObject XREAL_REye;
+        public GameObject XREAL_CenterEye;
+        public GameObject XREAL_LeftGrayscaleCamera;
+        public GameObject XREAL_RightGrayscaleCamera;
+
+        public RaycastLaser raycastLaser;
+
         protected void Start()
         {
             isBlendModeBlendToggle.isOn = isBlendModeBlend;
@@ -178,9 +188,18 @@ namespace NrealLightWithOpenCVForUnityExample
             }
             else
             {
-                Camera mainCamera = NRSessionManager.Instance.NRHMDPoseTracker.centerCamera;
-                cameraToWorldMatrix = mainCamera.cameraToWorldMatrix;
+                // Get cameraToWorldMatrix
+                // https://community.xreal.com/t/screen-to-world-point-from-centre-cam/1740/6
+                Pose headPose = NRFrame.HeadPose;
+                Matrix4x4 HeadPoseMatrix = Matrix4x4.TRS(headPose.position, headPose.rotation, Vector3.one);
+                var eyeposeFromHead = NRFrame.EyePoseFromHead;
+                Matrix4x4 rgbCameraPoseFromHeadMatrix = Matrix4x4.TRS(eyeposeFromHead.RGBEyePose.position, eyeposeFromHead.RGBEyePose.rotation, Vector3.one);
+                Matrix4x4 localToWorldMatrix = HeadPoseMatrix * rgbCameraPoseFromHeadMatrix;
+                // Transform localToWorldMatrix to cameraToWorldMatrix.
+                cameraToWorldMatrix = localToWorldMatrix * Matrix4x4.TRS(new Vector3(0, 0, 0), Quaternion.Euler(0, 0, 0), new Vector3(1, 1, -1));
+                Debug.Log("localToWorldMatrix:\n" + localToWorldMatrix.ToString());
 
+                // Get projectionMatrix
                 bool _result;
                 EyeProjectMatrixData pm = NRFrame.GetEyeProjectMatrix(out _result, 0.3f, 1000f);
                 projectionMatrix = pm.RGBEyeMatrix;
@@ -282,6 +301,12 @@ namespace NrealLightWithOpenCVForUnityExample
             //
 
 
+            // Place a marker objects at the coordinates of XREAL Glass Components.
+            PlaceMarkerObjects();
+            // Draw the View Frustum of the RGB Camera.
+            DrawViewFrustum(cameraToWorldMatrix, projectionMatrix);
+
+
             Debug.Log("Took picture!");
 
             if (saveTextureToGallery)
@@ -304,6 +329,127 @@ namespace NrealLightWithOpenCVForUnityExample
             return from;
         }
         //
+
+        private void PlaceMarkerObjects()
+        {
+            // The XREAL glasses consists of the following key components
+            // 2 x Grayscale Cameras
+            // 2 x Display Cameras
+            // Head / IMU
+            // RGB Camera
+            // https://xreal.gitbook.io/nrsdk/v/v1.10.2/advanced/nrsdk-coordinate-systems#converting-extrinsics-from-unity-to-opencv
+
+            // Head/IMU
+            Pose headPose = NRFrame.HeadPose;
+            Matrix4x4 headPoseM = Matrix4x4.TRS(headPose.position, headPose.rotation, Vector3.one);
+            ARUtils.SetTransformFromMatrix(XREAL_Head.transform, ref headPoseM);
+
+            // RGB Camera
+            var eyeposeFromHead = NRFrame.EyePoseFromHead;
+            Pose rgbCameraPose = eyeposeFromHead.RGBEyePose;
+            Matrix4x4 rgbCameraPoseFromHeadM = Matrix4x4.TRS(rgbCameraPose.position, rgbCameraPose.rotation, Vector3.one);
+            Matrix4x4 rgbCameraPoseM = headPoseM * rgbCameraPoseFromHeadM;
+            ARUtils.SetTransformFromMatrix(XREAL_RGBCamera.transform, ref rgbCameraPoseM);
+
+            // 2 x Grayscale Cameras
+            Pose leftGrayscaleCameraPose = NRFrame.GetDevicePoseFromHead(NativeDevice.LEFT_GRAYSCALE_CAMERA);
+            Matrix4x4 leftGrayscaleCameraPoseFromHeadM = Matrix4x4.TRS(leftGrayscaleCameraPose.position, leftGrayscaleCameraPose.rotation, Vector3.one);
+            Matrix4x4 leftGrayscaleCameraPoseM = headPoseM * leftGrayscaleCameraPoseFromHeadM;
+            ARUtils.SetTransformFromMatrix(XREAL_LeftGrayscaleCamera.transform, ref leftGrayscaleCameraPoseM);
+            Pose rightGrayscaleCameraPose = NRFrame.GetDevicePoseFromHead(NativeDevice.RIGHT_GRAYSCALE_CAMERA);
+            Matrix4x4 rightGrayscaleCameraPoseFromHeadM = Matrix4x4.TRS(rightGrayscaleCameraPose.position, rightGrayscaleCameraPose.rotation, Vector3.one);
+            Matrix4x4 rightGrayscaleCameraPoseM = headPoseM * rightGrayscaleCameraPoseFromHeadM;
+            ARUtils.SetTransformFromMatrix(XREAL_RightGrayscaleCamera.transform, ref rightGrayscaleCameraPoseM);
+
+            // 2 x Display Cameras (LEye and REye)
+            Pose lEyePose = eyeposeFromHead.LEyePose;
+            Matrix4x4 lEyePoseFromHeadM = Matrix4x4.TRS(lEyePose.position, lEyePose.rotation, Vector3.one);
+            Matrix4x4 lEyePoseM = headPoseM * lEyePoseFromHeadM;
+            ARUtils.SetTransformFromMatrix(XREAL_LEye.transform, ref lEyePoseM);
+            Pose rEyePose = eyeposeFromHead.REyePose;
+            Matrix4x4 rEyePoseFromHeadM = Matrix4x4.TRS(rEyePose.position, rEyePose.rotation, Vector3.one);
+            Matrix4x4 rEyePoseM = headPoseM * rEyePoseFromHeadM;
+            ARUtils.SetTransformFromMatrix(XREAL_REye.transform, ref rEyePoseM);
+
+            // Center Eye (the pose of between left eye and right eye)
+            Vector3 centerEye_pos = (eyeposeFromHead.LEyePose.position + eyeposeFromHead.REyePose.position) * 0.5f;
+            Quaternion centerEye_rot = Quaternion.Lerp(eyeposeFromHead.LEyePose.rotation, eyeposeFromHead.REyePose.rotation, 0.5f);
+            Pose centerEyePose = new Pose(centerEye_pos, centerEye_rot);
+            Matrix4x4 centerEyePoseFromHeadM = Matrix4x4.TRS(centerEyePose.position, centerEyePose.rotation, Vector3.one);
+            Matrix4x4 centerEyePoseM = headPoseM * centerEyePoseFromHeadM;
+            ARUtils.SetTransformFromMatrix(XREAL_CenterEye.transform, ref centerEyePoseM);
+
+            Debug.Log("XREAL_Head_localToWorldMatrix: \n" + XREAL_Head.transform.localToWorldMatrix.ToString());
+            Debug.Log("XREAL_RGBCamera_localToWorldMatrix: \n" + XREAL_RGBCamera.transform.localToWorldMatrix.ToString());
+            Debug.Log("XREAL_LeftGrayscaleCamera_localToWorldMatrix: \n" + XREAL_LeftGrayscaleCamera.transform.localToWorldMatrix.ToString());
+            Debug.Log("XREAL_RightGrayscaleCamera_localToWorldMatrix: \n" + XREAL_RightGrayscaleCamera.transform.localToWorldMatrix.ToString());
+            Debug.Log("XREAL_LEye_localToWorldMatrix: \n" + XREAL_LEye.transform.localToWorldMatrix.ToString());
+            Debug.Log("XREAL_REye_localToWorldMatrix: \n" + XREAL_REye.transform.localToWorldMatrix.ToString());
+            Debug.Log("XREAL_CenterEye_localToWorldMatrix: \n" + XREAL_CenterEye.transform.localToWorldMatrix.ToString());
+
+
+            //
+            Debug.Log("rgbCameraPoseFromHeadM: \n" + rgbCameraPoseFromHeadM.ToString()); // == NRFrame.GetDevicePoseFromHead(NativeDevice.RGB_CAMERA)
+            Debug.Log("leftGrayscaleCameraPoseFromHeadM: \n" + leftGrayscaleCameraPoseFromHeadM.ToString()); // Return identity matrix.
+            Debug.Log("rightGrayscaleCameraPoseFromHeadM: \n" + rightGrayscaleCameraPoseFromHeadM.ToString()); // Return identity matrix.
+            Debug.Log("lEyePoseFromHeadM: \n" + lEyePoseFromHeadM.ToString()); // == NRFrame.GetDevicePoseFromHead(NativeDevice.LEFT_DISPLAY)
+            Debug.Log("rEyePoseFromHeadM: \n" + rEyePoseFromHeadM.ToString()); // == NRFrame.GetDevicePoseFromHead(NativeDevice.RIGHT_DISPLAY)
+            Debug.Log("centerEyePoseFromHeadM: \n" + centerEyePoseFromHeadM.ToString()); // == NRFrame.CenterEyePose
+
+            //Pose magenticePose = NRFrame.GetDevicePoseFromHead(NativeDevice.MAGENTICE);
+            //Matrix4x4 magenticePoseFromHeadM = Matrix4x4.TRS(magenticePose.position, magenticePose.rotation, Vector3.one);
+            //Debug.Log("magenticePoseFromHeadM: \n" + magenticePoseFromHeadM.ToString());
+
+            //Pose leftDisplayPose = NRFrame.GetDevicePoseFromHead(NativeDevice.LEFT_DISPLAY);
+            //Matrix4x4 leftDisplayPoseFromHeadM = Matrix4x4.TRS(leftDisplayPose.position, leftDisplayPose.rotation, Vector3.one);
+            //Debug.Log("leftDisplayPoseFromHeadM: \n" + leftDisplayPoseFromHeadM.ToString());
+
+            //Pose rightDisplayPose = NRFrame.GetDevicePoseFromHead(NativeDevice.RIGHT_DISPLAY);
+            //Matrix4x4 rightDisplayPoseFromHeadM = Matrix4x4.TRS(rightDisplayPose.position, rightDisplayPose.rotation, Vector3.one);
+            //Debug.Log("rightDisplayPoseFromHeadM: \n" + rightDisplayPoseFromHeadM.ToString());
+            //
+        }
+
+        private void DrawViewFrustum(Matrix4x4 cameraToWorldMatrix, Matrix4x4 projectionMatrix)
+        {
+            for (int i = raycastLaser.transform.childCount - 1; i >= 0; --i)
+            {
+                GameObject.DestroyImmediate(raycastLaser.transform.GetChild(i).gameObject);
+            }
+
+            // Get the ray directions
+            Vector3 imageCenterDirection = PixelCoordToWorldCoord(cameraToWorldMatrix, projectionMatrix, new Vector2(0, 0));
+            Vector3 imageTopLeftDirection = PixelCoordToWorldCoord(cameraToWorldMatrix, projectionMatrix, new Vector2(-1, -1));
+            Vector3 imageTopRightDirection = PixelCoordToWorldCoord(cameraToWorldMatrix, projectionMatrix, new Vector2(1, -1));
+            Vector3 imageBotLeftDirection = PixelCoordToWorldCoord(cameraToWorldMatrix, projectionMatrix, new Vector2(-1, 1));
+            Vector3 imageBotRightDirection = PixelCoordToWorldCoord(cameraToWorldMatrix, projectionMatrix, new Vector2(1, 1));
+
+            // Paint the rays on the 3d world
+            raycastLaser.shootLaserFrom(cameraToWorldMatrix.GetColumn(3), imageCenterDirection, 3f);
+            raycastLaser.shootLaserFrom(cameraToWorldMatrix.GetColumn(3), imageTopLeftDirection, 3f);
+            raycastLaser.shootLaserFrom(cameraToWorldMatrix.GetColumn(3), imageTopRightDirection, 3f);
+            raycastLaser.shootLaserFrom(cameraToWorldMatrix.GetColumn(3), imageBotLeftDirection, 3f);
+            raycastLaser.shootLaserFrom(cameraToWorldMatrix.GetColumn(3), imageBotRightDirection, 3f);
+        }
+
+        private static Vector3 PixelCoordToWorldCoord(Matrix4x4 cameraToWorldMatrix, Matrix4x4 projectionMatrix, Vector2 pixelCoordinates)
+        {
+            //  pixelCoordinates is -1 to 1 coords
+
+            float focalLengthX = projectionMatrix.GetColumn(0).x;
+            float focalLengthY = projectionMatrix.GetColumn(1).y;
+            float centerX = projectionMatrix.GetColumn(2).x;
+            float centerY = projectionMatrix.GetColumn(2).y;
+
+            float normFactor = projectionMatrix.GetColumn(2).z;
+            centerX = centerX / normFactor;
+            centerY = centerY / normFactor;
+
+            Vector3 dirRay = new Vector3((pixelCoordinates.x - centerX) / focalLengthX, (pixelCoordinates.y - centerY) / focalLengthY, 1.0f / normFactor); //Direction is in camera space
+            Vector3 direction = new Vector3(Vector3.Dot(cameraToWorldMatrix.GetRow(0), dirRay), Vector3.Dot(cameraToWorldMatrix.GetRow(1), dirRay), Vector3.Dot(cameraToWorldMatrix.GetRow(2), dirRay));
+
+            return direction;
+        }
 
         /// <summary> Closes this object. </summary>
         void Close()

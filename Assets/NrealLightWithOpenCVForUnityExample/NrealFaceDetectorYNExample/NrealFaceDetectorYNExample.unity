@@ -288,6 +288,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: FPSCanvas
       objectReference: {fileID: 0}
+    - target: {fileID: 114491031132128258, guid: 67d84a29ffd5ca443ae62b9736795f1b, type: 3}
+      propertyPath: m_PresetInfoIsWorld
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 224453369079705500, guid: 67d84a29ffd5ca443ae62b9736795f1b, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -493,7 +497,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1709852087}
-        m_TargetAssemblyTypeName: NrealLightWithOpenCVForUnityExample.NrealDnnObjectDetectionExample,
+        m_TargetAssemblyTypeName: NrealLightWithOpenCVForUnityExample.NrealFaceDetectorYNExample,
           Assembly-CSharp
         m_MethodName: OnDisplayCameraImageToggleValueChanged
         m_Mode: 1
@@ -769,7 +773,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1709852087}
-        m_TargetAssemblyTypeName: NrealLightWithOpenCVForUnityExample.NrealDnnObjectDetectionExample,
+        m_TargetAssemblyTypeName: NrealLightWithOpenCVForUnityExample.NrealFaceDetectorYNExample,
           Assembly-CSharp
         m_MethodName: OnPlayButtonClick
         m_Mode: 1
@@ -1217,7 +1221,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1709852087}
-        m_TargetAssemblyTypeName: NrealLightWithOpenCVForUnityExample.NrealDnnObjectDetectionExample,
+        m_TargetAssemblyTypeName: NrealLightWithOpenCVForUnityExample.NrealFaceDetectorYNExample,
           Assembly-CSharp
         m_MethodName: OnChangeCameraButtonClick
         m_Mode: 1
@@ -1684,7 +1688,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1709852087}
-        m_TargetAssemblyTypeName: NrealLightWithOpenCVForUnityExample.NrealDnnObjectDetectionExample,
+        m_TargetAssemblyTypeName: NrealLightWithOpenCVForUnityExample.NrealFaceDetectorYNExample,
           Assembly-CSharp
         m_MethodName: OnEnableFrameSkipToggleValueChanged
         m_Mode: 1
@@ -1843,7 +1847,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1709852087}
-        m_TargetAssemblyTypeName: NrealLightWithOpenCVForUnityExample.NrealDnnObjectDetectionExample,
+        m_TargetAssemblyTypeName: NrealLightWithOpenCVForUnityExample.NrealFaceDetectorYNExample,
           Assembly-CSharp
         m_MethodName: OnPauseButtonClick
         m_Mode: 1
@@ -1985,7 +1989,7 @@ GameObject:
   - component: {fileID: 1709852086}
   - component: {fileID: 1709852088}
   m_Layer: 0
-  m_Name: NrealYoloObjectDetectionExample
+  m_Name: NrealFaceDetectorYNExample
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2094,7 +2098,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1709852087}
-        m_TargetAssemblyTypeName: NrealLightWithOpenCVForUnityExample.DnnObjectDetectionWebCamTextureExample,
+        m_TargetAssemblyTypeName: NrealLightWithOpenCVForUnityExample.NrealFaceDetectorYNExample,
           Assembly-CSharp
         m_MethodName: OnWebCamTextureToMatHelperInitialized
         m_Mode: 1
@@ -2110,7 +2114,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1709852087}
-        m_TargetAssemblyTypeName: NrealLightWithOpenCVForUnityExample.DnnObjectDetectionWebCamTextureExample,
+        m_TargetAssemblyTypeName: NrealLightWithOpenCVForUnityExample.NrealFaceDetectorYNExample,
           Assembly-CSharp
         m_MethodName: OnWebCamTextureToMatHelperDisposed
         m_Mode: 1
@@ -2126,7 +2130,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1709852087}
-        m_TargetAssemblyTypeName: NrealLightWithOpenCVForUnityExample.DnnObjectDetectionWebCamTextureExample,
+        m_TargetAssemblyTypeName: NrealLightWithOpenCVForUnityExample.NrealFaceDetectorYNExample,
           Assembly-CSharp
         m_MethodName: OnWebCamTextureToMatHelperErrorOccurred
         m_Mode: 0
@@ -2148,26 +2152,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 1709852081}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 701a3f5d55e57a04a8f7b1a29e1ca8fd, type: 3}
+  m_Script: {fileID: 11500000, guid: 9aae69b6930abc946b7d07dbea7ef563, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: yolov4-tiny.weights
-  config: yolov4-tiny.cfg
-  classes: coco.names
-  classesList: []
-  confThreshold: 0.25
-  nmsThreshold: 0.25
-  scale: 0.003921569
-  mean:
-    val:
-    - 0
-    - 0
-    - 0
-    - 0
-  swapRB: 0
-  inpWidth: 416
-  inpHeight: 416
-  enableFrameSkip: 1
+  enableFrameSkip: 0
   enableFrameSkipToggle: {fileID: 1635194723}
   displayCameraImage: 0
   displayCameraImageToggle: {fileID: 262404331}
@@ -2290,7 +2278,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1709852087}
-        m_TargetAssemblyTypeName: NrealLightWithOpenCVForUnityExample.NrealDnnObjectDetectionExample,
+        m_TargetAssemblyTypeName: NrealLightWithOpenCVForUnityExample.NrealFaceDetectorYNExample,
           Assembly-CSharp
         m_MethodName: OnBackButtonClick
         m_Mode: 1
@@ -2445,7 +2433,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1709852087}
-        m_TargetAssemblyTypeName: NrealLightWithOpenCVForUnityExample.NrealDnnObjectDetectionExample,
+        m_TargetAssemblyTypeName: NrealLightWithOpenCVForUnityExample.NrealFaceDetectorYNExample,
           Assembly-CSharp
         m_MethodName: OnStopButtonClick
         m_Mode: 1

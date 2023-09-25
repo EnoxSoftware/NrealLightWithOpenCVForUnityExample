@@ -20,7 +20,7 @@ namespace NrealLightWithOpenCVForUnityExample
     /// <summary>
     /// Nreal Face Detection Example
     /// An example of detecting face using OpenCVForUnity on Nreal Light.
-    /// Referring to https://github.com/Itseez/opencv/blob/master/modules/objdetect/src/detection_based_tracker.cpp.
+    /// Referring to https://github.com/Itseez/opencv/blob/master/modules/objdetect/src/detection_based_tracker.cpp
     /// </summary>
     [RequireComponent(typeof(NRCamTextureToMatHelper), typeof(ImageOptimizationHelper))]
     public class NrealFaceDetectionExample : MonoBehaviour
