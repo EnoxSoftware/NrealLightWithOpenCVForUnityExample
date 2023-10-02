@@ -13,7 +13,7 @@
 * Android (Galaxy S10+ SC-04L)
 * Nreal Light (XREAL Light)
 * Unity 2020.3.48f1+ (NRSDK supports the development environment of Unity 2018.4.X and above.)
-* [NRSDK](https://developer.nreal.ai/download)  Unity SDK 1.10.2 
+* [NRSDK](https://developer.nreal.ai/download)  Unity SDK 2.1.0 
 * [OpenCV for Unity](https://assetstore.unity.com/packages/tools/integration/opencv-for-unity-21088?aid=1011l4ehR) 2.5.6+ 
 
 

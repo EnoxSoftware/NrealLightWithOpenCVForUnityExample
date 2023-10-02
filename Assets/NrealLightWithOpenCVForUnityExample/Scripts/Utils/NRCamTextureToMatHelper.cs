@@ -13,8 +13,8 @@ namespace NrealLightWithOpenCVForUnity.UnityUtils.Helper
 {
     /// <summary>
     /// NRCamTexture to mat helper.
-    /// v 1.0.1
-    /// Depends on NRSDK v 1.10.2 (https://nreal.gitbook.io/nrsdk/nrsdk-fundamentals/core-features).
+    /// v 1.0.2
+    /// Depends on NRSDK v 2.1.0 (https://nreal.gitbook.io/nrsdk/nrsdk-fundamentals/core-features).
     /// Depends on OpenCVForUnity version 2.4.1 (WebCamTextureToMatHelper v 1.1.2) or later.
     /// 
     /// By setting outputColorFormat to RGB, processing that does not include extra color conversion is performed.
@@ -179,9 +179,6 @@ namespace NrealLightWithOpenCVForUnity.UnityUtils.Helper
                     // Get physical RGBCamera position (offset position from Head).
                     Pose camPos = NRFrame.GetDevicePoseFromHead(NativeDevice.RGB_CAMERA);
                     rgbCameraPoseFromHeadMatrix = Matrix4x4.TRS(camPos.position, camPos.rotation, Vector3.one);
-                    // The position offset in the Z direction seemed too large, so code to change it to the same value as the center eye.
-                    // (This will greatly improve the misalignment with reality during projection, but it is not perfect.)
-                    //rgbCameraPoseFromHeadMatrix.m23 = -0.00678f;
 
                     // Get CenterEyePose (between left eye and right eye) position (offset position from Head).
                     var eyeposeFromHead = NRFrame.EyePoseFromHead;
