@@ -1,4 +1,4 @@
-namespace OpenCVForUnity.RectangleTrack
+namespace NrealLightWithOpenCVForUnityExample.RectangleTrack
 {
     public class TrackerParameters
     {

@@ -5,7 +5,7 @@ using System.Linq;
 using UnityEngine;
 using Rect = OpenCVForUnity.CoreModule.Rect;
 
-namespace OpenCVForUnity.RectangleTrack
+namespace NrealLightWithOpenCVForUnityExample.RectangleTrack
 {
     /// <summary>
     /// Rectangle tracker.

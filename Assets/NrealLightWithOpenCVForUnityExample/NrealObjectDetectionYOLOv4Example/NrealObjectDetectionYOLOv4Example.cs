@@ -16,6 +16,7 @@ using NrealLightWithOpenCVForUnity.UnityUtils.Helper;
 using NRKernal;
 using System.Text;
 using OpenCVRect = OpenCVForUnity.CoreModule.Rect;
+using System.Threading;
 
 namespace NrealLightWithOpenCVForUnityExample
 {
@@ -29,7 +30,7 @@ namespace NrealLightWithOpenCVForUnityExample
     /// yolov4-tiny https://github.com/AlexeyAB/darknet/releases/download/yolov4/yolov4-tiny.weights, https://raw.githubusercontent.com/AlexeyAB/darknet/0faed3e60e52f742bbef43b83f6be51dd30f373e/cfg/yolov4-tiny.cfg
     /// yolov4 https://github.com/AlexeyAB/darknet/releases/download/yolov4/yolov4.weights, https://raw.githubusercontent.com/AlexeyAB/darknet/0faed3e60e52f742bbef43b83f6be51dd30f373e/cfg/yolov4.cfg
     /// </summary>
-    [RequireComponent(typeof(NRCamTextureToMatHelper))]
+    [RequireComponent(typeof(NRCamTexture2MatHelper))]
     public class NrealObjectDetectionYOLOv4Example : MonoBehaviour
     {
         [TooltipAttribute("Path to a binary file of model contains trained weights. It could be a file with extensions .caffemodel (Caffe), .pb (TensorFlow), .t7 or .net (Torch), .weights (Darknet).")]
@@ -70,7 +71,7 @@ namespace NrealLightWithOpenCVForUnityExample
         /// <summary>
         /// The webcam texture to mat helper.
         /// </summary>
-        NRCamTextureToMatHelper webCamTextureToMatHelper;
+        NRCamTexture2MatHelper webCamTextureToMatHelper;
 
         /// <summary>
         /// The image optimization helper.
@@ -120,7 +121,7 @@ namespace NrealLightWithOpenCVForUnityExample
         /// </summary>
         Renderer quad_renderer;
 
-
+        /*
         // Use this for initialization
         protected virtual void Start()
         {
@@ -128,7 +129,7 @@ namespace NrealLightWithOpenCVForUnityExample
             displayCameraImageToggle.isOn = displayCameraImage;
 
             imageOptimizationHelper = gameObject.GetComponent<ImageOptimizationHelper>();
-            webCamTextureToMatHelper = gameObject.GetComponent<NRCamTextureToMatHelper>();
+            webCamTextureToMatHelper = gameObject.GetComponent<NRCamTexture2MatHelper>();
 
 
             if (!string.IsNullOrEmpty(classes))
@@ -163,12 +164,74 @@ namespace NrealLightWithOpenCVForUnityExample
             }
             else
             {
+                objectDetector = new YOLOv4ObjectDetector(model_filepath, config_filepath, classes_filepath, new Size(inpWidth, inpHeight), confThreshold, nmsThreshold/*, topK);
+            }
+
+            webCamTextureToMatHelper.outputColorFormat = Source2MatHelperColorFormat.RGB;
+            webCamTextureToMatHelper.Initialize();
+        }
+*/
+
+        ////
+        /// <summary>
+        /// The CancellationTokenSource.
+        /// </summary>
+        CancellationTokenSource cts = new CancellationTokenSource();
+
+        // Use this for initialization
+        async void Start()
+        {
+            enableFrameSkipToggle.isOn = enableFrameSkip;
+            displayCameraImageToggle.isOn = displayCameraImage;
+
+            imageOptimizationHelper = gameObject.GetComponent<ImageOptimizationHelper>();
+            webCamTextureToMatHelper = gameObject.GetComponent<NRCamTexture2MatHelper>();
+
+
+            // Asynchronously retrieves the readable file path from the StreamingAssets directory.
+            Debug.Log("Preparing file access...");
+
+            if (!string.IsNullOrEmpty(classes))
+            {
+                classes_filepath = await Utils.getFilePathAsyncTask("OpenCVForUnity/dnn/" + classes, cancellationToken: cts.Token);
+                if (string.IsNullOrEmpty(classes_filepath)) Debug.Log("The file:" + classes + " did not exist in the folder “Assets/StreamingAssets/OpenCVForUnity/dnn”.");
+            }
+            if (!string.IsNullOrEmpty(config))
+            {
+                config_filepath = await Utils.getFilePathAsyncTask("OpenCVForUnity/dnn/" + config, cancellationToken: cts.Token);
+                if (string.IsNullOrEmpty(config_filepath)) Debug.Log("The file:" + config + " did not exist in the folder “Assets/StreamingAssets/OpenCVForUnity/dnn”.");
+            }
+            if (!string.IsNullOrEmpty(model))
+            {
+                model_filepath = await Utils.getFilePathAsyncTask("OpenCVForUnity/dnn/" + model, cancellationToken: cts.Token);
+                if (string.IsNullOrEmpty(model_filepath)) Debug.Log("The file:" + model + " did not exist in the folder “Assets/StreamingAssets/OpenCVForUnity/dnn”.");
+            }
+
+            Debug.Log("Preparing file access complete!");
+
+            Run();
+        }
+
+        // Use this for initialization
+        void Run()
+        {
+            //if true, The error log of the Native side OpenCV will be displayed on the Unity Editor Console.
+            Utils.setDebugMode(true);
+
+            if (string.IsNullOrEmpty(model_filepath) || string.IsNullOrEmpty(classes_filepath))
+            {
+                Debug.LogError("model: " + model + " or " + "config: " + config + " or " + "classes: " + classes + " is not loaded.");
+            }
+            else
+            {
                 objectDetector = new YOLOv4ObjectDetector(model_filepath, config_filepath, classes_filepath, new Size(inpWidth, inpHeight), confThreshold, nmsThreshold/*, topK*/);
             }
 
-            webCamTextureToMatHelper.outputColorFormat = WebCamTextureToMatHelper.ColorFormat.RGB;
+            webCamTextureToMatHelper.outputColorFormat = Source2MatHelperColorFormat.RGB;
             webCamTextureToMatHelper.Initialize();
         }
+        ////
+
 
         /// <summary>
         /// Raises the webcam texture to mat helper initialized event.
@@ -177,10 +240,10 @@ namespace NrealLightWithOpenCVForUnityExample
         {
             Debug.Log("OnWebCamTextureToMatHelperInitialized");
 
-            Mat webCamTextureMat = webCamTextureToMatHelper.GetMat();
+            Mat rgbMat = webCamTextureToMatHelper.GetMat();
 
 
-            texture = new Texture2D(webCamTextureMat.cols(), webCamTextureMat.rows(), TextureFormat.RGB24, false);
+            texture = new Texture2D(rgbMat.cols(), rgbMat.rows(), TextureFormat.RGB24, false);
 
             gameObject.GetComponent<Renderer>().material.mainTexture = texture;
 
@@ -196,7 +259,7 @@ namespace NrealLightWithOpenCVForUnityExample
             quad_renderer.sharedMaterial.SetMatrix("_CameraProjectionMatrix", mainCamera.projectionMatrix);
 #endif
 
-            bgrMat = new Mat(webCamTextureMat.rows(), webCamTextureMat.cols(), CvType.CV_8UC3);
+            bgrMat = new Mat(rgbMat.rows(), rgbMat.cols(), CvType.CV_8UC3);
         }
 
         /// <summary>
@@ -220,9 +283,10 @@ namespace NrealLightWithOpenCVForUnityExample
         /// Raises the webcam texture to mat helper error occurred event.
         /// </summary>
         /// <param name="errorCode">Error code.</param>
-        public virtual void OnWebCamTextureToMatHelperErrorOccurred(WebCamTextureToMatHelper.ErrorCode errorCode)
+        /// <param name="message">Message.</param>
+        public virtual void OnWebCamTextureToMatHelperErrorOccurred(Source2MatHelperErrorCode errorCode, string message)
         {
-            Debug.Log("OnWebCamTextureToMatHelperErrorOccurred " + errorCode);
+            Debug.Log("OnWebCamTextureToMatHelperErrorOccurred " + errorCode + ":" + message);
         }
 
         // Update is called once per frame
@@ -385,6 +449,9 @@ namespace NrealLightWithOpenCVForUnityExample
                 objectDetector.dispose();
 
             Utils.setDebugMode(false);
+
+            if (cts != null)
+                cts.Dispose();
         }
 
         /// <summary>

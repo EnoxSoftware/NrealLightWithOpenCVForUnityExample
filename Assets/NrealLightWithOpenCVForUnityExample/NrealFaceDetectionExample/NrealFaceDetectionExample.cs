@@ -1,15 +1,16 @@
 #if !(PLATFORM_LUMIN && !UNITY_EDITOR)
 
 using NrealLightWithOpenCVForUnity.UnityUtils.Helper;
+using NrealLightWithOpenCVForUnityExample.RectangleTrack;
 using NRKernal;
 using OpenCVForUnity.CoreModule;
 using OpenCVForUnity.ImgprocModule;
 using OpenCVForUnity.ObjdetectModule;
-using OpenCVForUnity.RectangleTrack;
 using OpenCVForUnity.UnityUtils;
 using OpenCVForUnity.UnityUtils.Helper;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -22,7 +23,7 @@ namespace NrealLightWithOpenCVForUnityExample
     /// An example of detecting face using OpenCVForUnity on Nreal Light.
     /// Referring to https://github.com/Itseez/opencv/blob/master/modules/objdetect/src/detection_based_tracker.cpp
     /// </summary>
-    [RequireComponent(typeof(NRCamTextureToMatHelper), typeof(ImageOptimizationHelper))]
+    [RequireComponent(typeof(NRCamTexture2MatHelper), typeof(ImageOptimizationHelper))]
     public class NrealFaceDetectionExample : MonoBehaviour
     {
         /// <summary>
@@ -71,7 +72,7 @@ namespace NrealLightWithOpenCVForUnityExample
         /// <summary>
         /// The webcam texture to mat helper.
         /// </summary>
-        NRCamTextureToMatHelper webCamTextureToMatHelper;
+        NRCamTexture2MatHelper webCamTextureToMatHelper;
 
         /// <summary>
         /// The image optimization helper.
@@ -162,7 +163,7 @@ namespace NrealLightWithOpenCVForUnityExample
         /// </summary>
         Camera mainCamera;
 
-
+        /*
         // Use this for initialization
         protected void Start()
         {
@@ -171,12 +172,68 @@ namespace NrealLightWithOpenCVForUnityExample
             displayCameraImageToggle.isOn = displayCameraImage;
 
             imageOptimizationHelper = gameObject.GetComponent<ImageOptimizationHelper>();
-            webCamTextureToMatHelper = gameObject.GetComponent<NRCamTextureToMatHelper>();
-            webCamTextureToMatHelper.outputColorFormat = WebCamTextureToMatHelper.ColorFormat.GRAY;
+            webCamTextureToMatHelper = gameObject.GetComponent<NRCamTexture2MatHelper>();
+            webCamTextureToMatHelper.outputColorFormat = Source2MatHelperColorFormat.GRAY;
             webCamTextureToMatHelper.Initialize();
 
             rectangleTracker = new RectangleTracker();
         }
+        */
+
+        ////
+        string cascade_filepath;
+        string cascade4Thread_filepath;
+
+        /// <summary>
+        /// The CancellationTokenSource.
+        /// </summary>
+        CancellationTokenSource cts = new CancellationTokenSource();
+
+        // Use this for initialization
+        async void Start()
+        {
+            enableDownScaleToggle.isOn = enableDownScale;
+            useSeparateDetectionToggle.isOn = useSeparateDetection;
+            displayCameraImageToggle.isOn = displayCameraImage;
+
+            imageOptimizationHelper = gameObject.GetComponent<ImageOptimizationHelper>();
+            webCamTextureToMatHelper = gameObject.GetComponent<NRCamTexture2MatHelper>();
+
+            rectangleTracker = new RectangleTracker();
+
+            // Asynchronously retrieves the readable file path from the StreamingAssets directory.
+            Debug.Log("Preparing file access...");
+
+            cascade_filepath = await Utils.getFilePathAsyncTask("OpenCVForUnity/objdetect/lbpcascade_frontalface.xml", cancellationToken: cts.Token);
+            cascade4Thread_filepath = await Utils.getFilePathAsyncTask("OpenCVForUnity/objdetect/haarcascade_frontalface_alt.xml", cancellationToken: cts.Token);
+
+            Debug.Log("Preparing file access complete!");
+
+            Run();
+        }
+
+        // Use this for initialization
+        void Run()
+        {
+            cascade = new CascadeClassifier();
+            cascade.load(cascade_filepath);
+            if (cascade.empty())
+            {
+                Debug.LogError("cascade file is not loaded. Please copy from “OpenCVForUnity/StreamingAssets/OpenCVForUnity/objdetect/” to “Assets/StreamingAssets/OpenCVForUnity/objdetect/” folder. ");
+            }
+
+
+            cascade4Thread = new CascadeClassifier();
+            cascade4Thread.load(cascade4Thread_filepath);
+            if (cascade4Thread.empty())
+            {
+                Debug.LogError("cascade file is not loaded. Please copy from “OpenCVForUnity/StreamingAssets/OpenCVForUnity/objdetect/” to “Assets/StreamingAssets/OpenCVForUnity/objdetect/” folder. ");
+            }
+
+            webCamTextureToMatHelper.outputColorFormat = Source2MatHelperColorFormat.GRAY;
+            webCamTextureToMatHelper.Initialize();
+        }
+        ////
 
         /// <summary>
         /// Raises the web cam texture to mat helper initialized event.
@@ -204,7 +261,7 @@ namespace NrealLightWithOpenCVForUnityExample
 #endif
 
 
-
+            /*
             cascade = new CascadeClassifier();
             cascade.load(Utils.getFilePath("OpenCVForUnity/objdetect/lbpcascade_frontalface.xml"));
 #if !UNITY_WSA_10_0 || UNITY_EDITOR
@@ -225,6 +282,11 @@ namespace NrealLightWithOpenCVForUnityExample
                 Debug.LogError("cascade file is not loaded. Please copy from “OpenCVForUnity/StreamingAssets/OpenCVForUnity/objdetect/” to “Assets/StreamingAssets/OpenCVForUnity/objdetect/” folder. ");
             }
 #endif
+            */
+
+            //////
+            grayMat4Thread = new Mat();
+            //////
         }
 
         /// <summary>
@@ -249,25 +311,26 @@ namespace NrealLightWithOpenCVForUnityExample
                 texture = null;
             }
 
-            if (cascade != null)
-                cascade.Dispose();
+            //if (cascade != null)
+            //    cascade.Dispose();
 
             if (grayMat4Thread != null)
                 grayMat4Thread.Dispose();
 
-            if (cascade4Thread != null)
-                cascade4Thread.Dispose();
+            //if (cascade4Thread != null)
+            //    cascade4Thread.Dispose();
 
             rectangleTracker.Reset();
         }
 
         /// <summary>
-        /// Raises the web cam texture to mat helper error occurred event.
+        /// Raises the webcam texture to mat helper error occurred event.
         /// </summary>
         /// <param name="errorCode">Error code.</param>
-        public void OnWebCamTextureToMatHelperErrorOccurred(WebCamTextureToMatHelper.ErrorCode errorCode)
+        /// <param name="message">Message.</param>
+        public void OnWebCamTextureToMatHelperErrorOccurred(Source2MatHelperErrorCode errorCode, string message)
         {
-            Debug.Log("OnWebCamTextureToMatHelperErrorOccurred " + errorCode);
+            Debug.Log("OnWebCamTextureToMatHelperErrorOccurred " + errorCode + ":" + message);
         }
 
         // Update is called once per frame
@@ -370,7 +433,7 @@ namespace NrealLightWithOpenCVForUnityExample
                     DrawDownScaleFaceRects(grayMat, resultObjects.ToArray(), DOWNSCALE_RATIO, COLOR_WHITE, 6);
                 }
 
-                Utils.fastMatToTexture2D(grayMat, texture);
+                Utils.matToTexture2D(grayMat, texture);
             }
 
             if (webCamTextureToMatHelper.IsPlaying())
@@ -556,6 +619,15 @@ namespace NrealLightWithOpenCVForUnityExample
 
             if (rectangleTracker != null)
                 rectangleTracker.Dispose();
+
+            if (cascade != null)
+                cascade.Dispose();
+
+            if (cascade4Thread != null)
+                cascade4Thread.Dispose();
+
+            if (cts != null)
+                cts.Dispose();
         }
 
         /// <summary>

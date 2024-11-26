@@ -13,11 +13,11 @@ using UnityEngine.UI;
 namespace NrealLightWithOpenCVForUnityExample
 {
     /// <summary>
-    /// NRCamTextureToMatHelper Example
+    /// NRCamTexture2MatHelper Example
     /// An example of image processing (comic filter) using OpenCVForUnity on NrealLight.
     /// </summary>
-    [RequireComponent(typeof(NRCamTextureToMatHelper))]
-    public class NRCamTextureToMatHelperExample : MonoBehaviour
+    [RequireComponent(typeof(NRCamTexture2MatHelper))]
+    public class NRCamTexture2MatHelperExample : MonoBehaviour
     {
 
         /// <summary>
@@ -43,7 +43,7 @@ namespace NrealLightWithOpenCVForUnityExample
         /// <summary>
         /// The webcam texture to mat helper.
         /// </summary>
-        NRCamTextureToMatHelper webCamTextureToMatHelper;
+        NRCamTexture2MatHelper webCamTextureToMatHelper;
 
         /// <summary>
         /// The quad renderer.
@@ -76,8 +76,8 @@ namespace NrealLightWithOpenCVForUnityExample
         // Use this for initialization
         void Start()
         {
-            webCamTextureToMatHelper = gameObject.GetComponent<NRCamTextureToMatHelper>();
-            webCamTextureToMatHelper.outputColorFormat = WebCamTextureToMatHelper.ColorFormat.RGB;
+            webCamTextureToMatHelper = gameObject.GetComponent<NRCamTexture2MatHelper>();
+            webCamTextureToMatHelper.outputColorFormat = Source2MatHelperColorFormat.RGB;
             webCamTextureToMatHelper.Initialize();
 
             // Update GUI state
@@ -94,10 +94,10 @@ namespace NrealLightWithOpenCVForUnityExample
         {
             Debug.Log("OnWebCamTextureToMatHelperInitialized");
 
-            Mat webCamTextureMat = webCamTextureToMatHelper.GetMat();
+            Mat rgbMat = webCamTextureToMatHelper.GetMat();
 
-            texture = new Texture2D(webCamTextureMat.cols(), webCamTextureMat.rows(), TextureFormat.RGB24, false);
-            Utils.matToTexture2D(webCamTextureMat, texture);
+            texture = new Texture2D(rgbMat.cols(), rgbMat.rows(), TextureFormat.RGB24, false);
+            Utils.matToTexture2D(rgbMat, texture);
 
             gameObject.GetComponent<Renderer>().material.mainTexture = texture;
 
@@ -136,9 +136,10 @@ namespace NrealLightWithOpenCVForUnityExample
         /// Raises the webcam texture to mat helper error occurred event.
         /// </summary>
         /// <param name="errorCode">Error code.</param>
-        public void OnWebCamTextureToMatHelperErrorOccurred(WebCamTextureToMatHelper.ErrorCode errorCode)
+        /// <param name="message">Message.</param>
+        public void OnWebCamTextureToMatHelperErrorOccurred(Source2MatHelperErrorCode errorCode, string message)
         {
-            Debug.Log("OnWebCamTextureToMatHelperErrorOccurred " + errorCode);
+            Debug.Log("OnWebCamTextureToMatHelperErrorOccurred " + errorCode + ":" + message);
         }
 
         // Update is called once per frame
@@ -157,7 +158,7 @@ namespace NrealLightWithOpenCVForUnityExample
                     Imgproc.putText(rgbMat, "W:" + rgbMat.width() + " H:" + rgbMat.height() + " SO:" + Screen.orientation, new Point(5, rgbMat.rows() - 10), Imgproc.FONT_HERSHEY_SIMPLEX, 1.0, new Scalar(255, 255, 255, 255), 2, Imgproc.LINE_AA, false);
                 }
 
-                Utils.fastMatToTexture2D(rgbMat, texture);
+                Utils.matToTexture2D(rgbMat, texture);
             }
 
             if (webCamTextureToMatHelper.IsPlaying())

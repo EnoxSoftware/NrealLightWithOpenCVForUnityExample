@@ -12,21 +12,31 @@ using UnityEngine;
 namespace NrealLightWithOpenCVForUnity.UnityUtils.Helper
 {
     /// <summary>
-    /// NRCamTexture to mat helper.
-    /// v 1.0.2
-    /// Depends on NRSDK v 2.1.0 (https://nreal.gitbook.io/nrsdk/nrsdk-fundamentals/core-features).
-    /// Depends on OpenCVForUnity version 2.4.1 (WebCamTextureToMatHelper v 1.1.2) or later.
-    /// 
-    /// By setting outputColorFormat to RGB, processing that does not include extra color conversion is performed.
-    /// 
+    /// A helper component class for obtaining camera frames from Nreal NRRGBCamTexture and converting them to OpenCV <c>Mat</c> format in real-time.
     /// </summary>
-    public class NRCamTextureToMatHelper : WebCamTextureToMatHelper
+    /// <remarks>
+    /// The <c>NRCamTexture2MatHelper</c> class captures video frames from a device's camera using Nreal NRRGBCamTexture
+    /// and converts each frame to an OpenCV <c>Mat</c> object every frame. 
+    /// 
+    /// This component is particularly useful for image processing tasks in Unity, such as computer vision applications, 
+    /// where real-time camera input in <c>Mat</c> format is required. It enables seamless integration of OpenCV-based 
+    /// image processing algorithms with HoloLens camera input.
+    /// 
+    /// <para><strong>Note:</strong> By setting outputColorFormat to RGB, processing that does not include extra color conversion is performed.</para>
+    /// <para><strong>Note:</strong> Depends on <a href="https://nreal.gitbook.io/nrsdk/nrsdk-fundamentals/core-features">NRSDK</a> v 2.1.0 or later.</para>
+    /// <para><strong>Note:</strong> Depends on OpenCVForUnity version 2.6.4 or later.</para>
+    /// </remarks>
+    /// <example>
+    /// Attach this component to a GameObject and call <c>GetMat()</c> to retrieve the latest camera frame in <c>Mat</c> format. 
+    /// The helper class manages camera start/stop operations and frame updates internally.
+    /// </example>
+    public class NRCamTexture2MatHelper : WebCamTexture2MatHelper
     {
 
         protected NRRGBCamTexture nrRGBCamTexture = default;
 
         /// <summary>
-        /// Returns the NRRGBCamTexture.
+        /// Return the NRRGBCamTexture.
         /// </summary>
         /// <returns>The NRRGBCamTexture.</returns>
         public virtual NRRGBCamTexture GetNRRGBCamTexture()
@@ -35,7 +45,7 @@ namespace NrealLightWithOpenCVForUnity.UnityUtils.Helper
         }
 
         /// <summary>
-        /// Pauses the CurrentFrame timeStamp.
+        /// Return the CurrentFrame timeStamp.
         /// </summary>
         public virtual ulong GetCurrentFrameTimeStamp()
         {
@@ -47,7 +57,7 @@ namespace NrealLightWithOpenCVForUnity.UnityUtils.Helper
         }
 
         /// <summary>
-        /// Pauses the CurrentFrame gain.
+        /// Return the CurrentFrame gain.
         /// </summary>
         public virtual ulong GetCurrentFrameGain()
         {
@@ -59,7 +69,7 @@ namespace NrealLightWithOpenCVForUnity.UnityUtils.Helper
         }
 
         /// <summary>
-        /// Pauses the CurrentFrame exposureTime.
+        /// Return the CurrentFrame exposureTime.
         /// </summary>
         public virtual ulong GetCurrentFrameExposureTime()
         {
@@ -71,7 +81,7 @@ namespace NrealLightWithOpenCVForUnity.UnityUtils.Helper
         }
 
         /// <summary>
-        /// Pauses the FrameCount.
+        /// Return the FrameCount.
         /// </summary>
         public virtual int GetFrameCount()
         {
@@ -85,7 +95,7 @@ namespace NrealLightWithOpenCVForUnity.UnityUtils.Helper
 
 #if UNITY_ANDROID && !UNITY_EDITOR && !DISABLE_NRSDK_API
 
-        new protected ColorFormat baseColorFormat = ColorFormat.RGB;
+        new protected Source2MatHelperColorFormat baseColorFormat = Source2MatHelperColorFormat.RGB;
 
         protected Matrix4x4 invertZM = Matrix4x4.TRS(new Vector3(0, 0, 0), Quaternion.Euler(0, 0, 0), new Vector3(1, 1, -1));
 
@@ -100,7 +110,7 @@ namespace NrealLightWithOpenCVForUnity.UnityUtils.Helper
         protected override void Update() { }
 
         /// <summary>
-        /// Initializes this instance by coroutine.
+        /// Initialize this instance by coroutine.
         /// </summary>
         protected override IEnumerator _Initialize()
         {
@@ -115,6 +125,9 @@ namespace NrealLightWithOpenCVForUnity.UnityUtils.Helper
 
             isInitWaiting = true;
 
+            // Wait one frame before starting initialization process
+            yield return null;
+
 
 #if (UNITY_IOS || UNITY_ANDROID) && !UNITY_EDITOR
             // Checks camera permission state.
@@ -127,7 +140,7 @@ namespace NrealLightWithOpenCVForUnity.UnityUtils.Helper
                 initCoroutine = null;
 
                 if (onErrorOccurred != null)
-                    onErrorOccurred.Invoke(ErrorCode.CAMERA_PERMISSION_DENIED);
+                    onErrorOccurred.Invoke(Source2MatHelperErrorCode.CAMERA_PERMISSION_DENIED, string.Empty);
 
                 yield break;
             }
@@ -151,7 +164,7 @@ namespace NrealLightWithOpenCVForUnity.UnityUtils.Helper
                 }
                 else if (nrRGBCamTexture.DidUpdateThisFrame)
                 {
-                    Debug.Log("NRCamTextureToMatHelper:: " + "DeviceName:" + "RGB_CAMERA" + " width:" + nrRGBCamTexture.Width + " height:" + nrRGBCamTexture.Height + " frameCount:" + nrRGBCamTexture.FrameCount);
+                    Debug.Log("NRCamTexture2MatHelper:: " + "DeviceName:" + "RGB_CAMERA" + " width:" + nrRGBCamTexture.Width + " height:" + nrRGBCamTexture.Height + " frameCount:" + nrRGBCamTexture.FrameCount);
 
                     baseMat = new Mat(nrRGBCamTexture.Height, nrRGBCamTexture.Width, CvType.CV_8UC3);
 
@@ -161,7 +174,7 @@ namespace NrealLightWithOpenCVForUnity.UnityUtils.Helper
                     }
                     else
                     {
-                        frameMat = new Mat(baseMat.rows(), baseMat.cols(), CvType.CV_8UC(Channels(outputColorFormat)), new Scalar(0, 0, 0, 255));
+                        frameMat = new Mat(baseMat.rows(), baseMat.cols(), CvType.CV_8UC(Source2MatHelperUtils.Channels(outputColorFormat)), new Scalar(0, 0, 0, 255));
                     }
 
                     screenOrientation = Screen.orientation;
@@ -169,7 +182,7 @@ namespace NrealLightWithOpenCVForUnity.UnityUtils.Helper
                     screenHeight = Screen.height;
 
                     if (rotate90Degree)
-                        rotatedFrameMat = new Mat(frameMat.cols(), frameMat.rows(), CvType.CV_8UC(Channels(outputColorFormat)), new Scalar(0, 0, 0, 255));
+                        rotatedFrameMat = new Mat(frameMat.cols(), frameMat.rows(), CvType.CV_8UC(Source2MatHelperUtils.Channels(outputColorFormat)), new Scalar(0, 0, 0, 255));
 
                     isInitWaiting = false;
                     hasInitDone = true;
@@ -225,12 +238,12 @@ namespace NrealLightWithOpenCVForUnity.UnityUtils.Helper
                 initCoroutine = null;
 
                 if (onErrorOccurred != null)
-                    onErrorOccurred.Invoke(ErrorCode.TIMEOUT);
+                    onErrorOccurred.Invoke(Source2MatHelperErrorCode.TIMEOUT, string.Empty);
             }
         }
 
         /// <summary>
-        /// Starts the camera.
+        /// Start the active camera.
         /// </summary>
         public override void Play()
         {
@@ -239,7 +252,7 @@ namespace NrealLightWithOpenCVForUnity.UnityUtils.Helper
         }
 
         /// <summary>
-        /// Pauses the active camera.
+        /// Pause the active camera.
         /// </summary>
         public override void Pause()
         {
@@ -248,7 +261,7 @@ namespace NrealLightWithOpenCVForUnity.UnityUtils.Helper
         }
 
         /// <summary>
-        /// Stops the active camera.
+        /// Stop the active camera.
         /// </summary>
         public override void Stop()
         {
@@ -257,7 +270,7 @@ namespace NrealLightWithOpenCVForUnity.UnityUtils.Helper
         }
 
         /// <summary>
-        /// Indicates whether the active camera is currently playing.
+        /// Indicate whether the active camera is currently playing.
         /// </summary>
         /// <returns><c>true</c>, if the active camera is playing, <c>false</c> otherwise.</returns>
         public override bool IsPlaying()
@@ -266,7 +279,7 @@ namespace NrealLightWithOpenCVForUnity.UnityUtils.Helper
         }
 
         /// <summary>
-        /// Indicates whether the active camera device is currently front facng.
+        /// Indicate whether the active camera device is currently front facng.
         /// </summary>
         /// <returns><c>true</c>, if the active camera device is front facng, <c>false</c> otherwise.</returns>
         public override bool IsFrontFacing()
@@ -275,7 +288,7 @@ namespace NrealLightWithOpenCVForUnity.UnityUtils.Helper
         }
 
         /// <summary>
-        /// Returns the active camera device name.
+        /// Return the active camera device name.
         /// </summary>
         /// <returns>The active camera device name.</returns>
         public override string GetDeviceName()
@@ -284,7 +297,7 @@ namespace NrealLightWithOpenCVForUnity.UnityUtils.Helper
         }
 
         /// <summary>
-        /// Returns the active camera framerate.
+        /// Return the active camera framerate.
         /// </summary>
         /// <returns>The active camera framerate.</returns>
         public override float GetFPS()
@@ -293,7 +306,7 @@ namespace NrealLightWithOpenCVForUnity.UnityUtils.Helper
         }
 
         /// <summary>
-        /// Returns the active WebcamTexture.
+        /// Return the active WebcamTexture.
         /// </summary>
         /// <returns>The active WebcamTexture.</returns>
         public override WebCamTexture GetWebCamTexture()
@@ -302,7 +315,7 @@ namespace NrealLightWithOpenCVForUnity.UnityUtils.Helper
         }
 
         /// <summary>
-        /// Returns the camera to world matrix.
+        /// Return the camera to world matrix.
         /// </summary>
         /// <returns>The camera to world matrix.</returns>
         public override Matrix4x4 GetCameraToWorldMatrix()
@@ -327,7 +340,7 @@ namespace NrealLightWithOpenCVForUnity.UnityUtils.Helper
         }
 
         /// <summary>
-        /// Returns the projection matrix matrix.
+        /// Return the projection matrix matrix.
         /// </summary>
         /// <returns>The projection matrix.</returns>
         public override Matrix4x4 GetProjectionMatrix()
@@ -336,7 +349,7 @@ namespace NrealLightWithOpenCVForUnity.UnityUtils.Helper
         }
 
         /// <summary>
-        /// Indicates whether the video buffer of the frame has been updated.
+        /// Indicate whether the video buffer of the frame has been updated.
         /// </summary>
         /// <returns><c>true</c>, if the video buffer has been updated <c>false</c> otherwise.</returns>
         public override bool DidUpdateThisFrame()
@@ -348,10 +361,12 @@ namespace NrealLightWithOpenCVForUnity.UnityUtils.Helper
         }
 
         /// <summary>
-        /// Gets the mat of the current frame.
+        /// Get the mat of the current frame.
+        /// </summary>
+        /// <remarks>
         /// The Mat object's type is 'CV_8UC4' or 'CV_8UC3' or 'CV_8UC1' (ColorFormat is determined by the outputColorFormat setting).
         /// Please do not dispose of the returned mat as it will be reused.
-        /// </summary>
+        /// </remarks>
         /// <returns>The mat of the current frame.</returns>
         public override Mat GetMat()
         {
@@ -362,12 +377,12 @@ namespace NrealLightWithOpenCVForUnity.UnityUtils.Helper
 
             if (baseColorFormat == outputColorFormat)
             {
-                Utils.fastTexture2DToMat(nrRGBCamTexture.GetTexture(), frameMat, false);
+                Utils.texture2DToMat(nrRGBCamTexture.GetTexture(), frameMat, false);
             }
             else
             {
-                Utils.fastTexture2DToMat(nrRGBCamTexture.GetTexture(), baseMat, false);
-                Imgproc.cvtColor(baseMat, frameMat, ColorConversionCodes(baseColorFormat, outputColorFormat));
+                Utils.texture2DToMat(nrRGBCamTexture.GetTexture(), baseMat, false);
+                Imgproc.cvtColor(baseMat, frameMat, Source2MatHelperUtils.ColorConversionCodes(baseColorFormat, outputColorFormat));
             }
 
             FlipMat(frameMat, flipVertical, flipHorizontal);
@@ -383,7 +398,7 @@ namespace NrealLightWithOpenCVForUnity.UnityUtils.Helper
         }
 
         /// <summary>
-        /// Flips the mat.
+        /// Flip the mat.
         /// </summary>
         /// <param name="mat">Mat.</param>
         protected override void FlipMat(Mat mat, bool flipVertical, bool flipHorizontal)
@@ -437,7 +452,7 @@ namespace NrealLightWithOpenCVForUnity.UnityUtils.Helper
         }
 
         /// <summary>
-        /// Gets the buffer colors.
+        /// Get the buffer colors.
         /// </summary>
         /// <returns>The buffer colors.</returns>
         public override Color32[] GetBufferColors()
@@ -479,12 +494,12 @@ namespace NrealLightWithOpenCVForUnity.UnityUtils.Helper
         }
 
         /// <summary>
-        /// Releases all resource used by the <see cref="WebCamTextureToMatHelper"/> object.
+        /// Releases all resource used by the <see cref="NRCamTexture2MatHelper"/> object.
         /// </summary>
-        /// <remarks>Call <see cref="Dispose"/> when you are finished using the <see cref="WebCamTextureToMatHelper"/>. The
-        /// <see cref="Dispose"/> method leaves the <see cref="WebCamTextureToMatHelper"/> in an unusable state. After
-        /// calling <see cref="Dispose"/>, you must release all references to the <see cref="WebCamTextureToMatHelper"/> so
-        /// the garbage collector can reclaim the memory that the <see cref="WebCamTextureToMatHelper"/> was occupying.</remarks>
+        /// <remarks>Call <see cref="Dispose"/> when you are finished using the <see cref="NRCamTexture2MatHelper"/>. The
+        /// <see cref="Dispose"/> method leaves the <see cref="NRCamTexture2MatHelper"/> in an unusable state. After
+        /// calling <see cref="Dispose"/>, you must release all references to the <see cref="NRCamTexture2MatHelper"/> so
+        /// the garbage collector can reclaim the memory that the <see cref="NRCamTexture2MatHelper"/> was occupying.</remarks>
         public override void Dispose()
         {
             if (colors != null)

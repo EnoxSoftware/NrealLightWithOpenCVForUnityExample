@@ -21,7 +21,7 @@ namespace NrealLightWithOpenCVForUnityExample
     /// An example of marker based AR using OpenCVForUnity on Nreal Light.
     /// Referring to https://github.com/opencv/opencv_contrib/blob/master/modules/aruco/samples/detect_markers.cpp.
     /// </summary>
-    [RequireComponent(typeof(NRCamTextureToMatHelper), typeof(ImageOptimizationHelper))]
+    [RequireComponent(typeof(NRCamTexture2MatHelper), typeof(ImageOptimizationHelper))]
     public class NrealArUcoExample : MonoBehaviour
     {
         [HeaderAttribute("Preview")]
@@ -128,7 +128,7 @@ namespace NrealLightWithOpenCVForUnityExample
         /// <summary>
         /// The webcam texture to mat helper.
         /// </summary>
-        NRCamTextureToMatHelper webCamTextureToMatHelper;
+        NRCamTexture2MatHelper webCamTextureToMatHelper;
 
         /// <summary>
         /// The image optimization helper.
@@ -213,8 +213,8 @@ namespace NrealLightWithOpenCVForUnityExample
             enableLerpFilterToggle.isOn = enableLerpFilter;
 
             imageOptimizationHelper = gameObject.GetComponent<ImageOptimizationHelper>();
-            webCamTextureToMatHelper = gameObject.GetComponent<NRCamTextureToMatHelper>();
-            webCamTextureToMatHelper.outputColorFormat = WebCamTextureToMatHelper.ColorFormat.GRAY;
+            webCamTextureToMatHelper = gameObject.GetComponent<NRCamTexture2MatHelper>();
+            webCamTextureToMatHelper.outputColorFormat = Source2MatHelperColorFormat.GRAY;
             webCamTextureToMatHelper.Initialize();
         }
 
@@ -393,12 +393,13 @@ namespace NrealLightWithOpenCVForUnityExample
         }
 
         /// <summary>
-        /// Raises the web cam texture to mat helper error occurred event.
+        /// Raises the webcam texture to mat helper error occurred event.
         /// </summary>
         /// <param name="errorCode">Error code.</param>
-        public void OnWebCamTextureToMatHelperErrorOccurred(WebCamTextureToMatHelper.ErrorCode errorCode)
+        /// <param name="message">Message.</param>
+        public void OnWebCamTextureToMatHelperErrorOccurred(Source2MatHelperErrorCode errorCode, string message)
         {
-            Debug.Log("OnWebCamTextureToMatHelperErrorOccurred " + errorCode);
+            Debug.Log("OnWebCamTextureToMatHelperErrorOccurred " + errorCode + ":" + message);
         }
 
         // Update is called once per frame
@@ -559,7 +560,7 @@ namespace NrealLightWithOpenCVForUnityExample
                     }
                 }
 
-                Utils.fastMatToTexture2D(rgbMat4preview, texture);
+                Utils.matToTexture2D(rgbMat4preview, texture);
             }
 
             if (applyEstimationPose)

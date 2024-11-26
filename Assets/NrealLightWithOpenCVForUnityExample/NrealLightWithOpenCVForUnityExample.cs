@@ -80,9 +80,9 @@ namespace NrealLightWithOpenCVForUnityExample
             SceneManager.LoadScene("NrealPhotoCaptureExample");
         }
 
-        public void OnNRCamTextureToMatHelperExampleButtonClick()
+        public void OnNRCamTexture2MatHelperExampleButtonClick()
         {
-            SceneManager.LoadScene("NRCamTextureToMatHelperExample");
+            SceneManager.LoadScene("NRCamTexture2MatHelperExample");
         }
 
         public void OnNrealFaceDetectionExampleButtonClick()

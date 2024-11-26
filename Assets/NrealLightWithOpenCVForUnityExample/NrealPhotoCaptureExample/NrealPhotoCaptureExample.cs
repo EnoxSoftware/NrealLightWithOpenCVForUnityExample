@@ -7,6 +7,7 @@ using OpenCVForUnity.ObjdetectModule;
 using OpenCVForUnity.UnityUtils;
 using System;
 using System.Linq;
+using System.Threading;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -89,6 +90,7 @@ namespace NrealLightWithOpenCVForUnityExample
 
         public RaycastLaser raycastLaser;
 
+        /*
         protected void Start()
         {
             isBlendModeBlendToggle.isOn = isBlendModeBlend;
@@ -98,6 +100,38 @@ namespace NrealLightWithOpenCVForUnityExample
             m_CanvasRenderer = m_Canvas.GetComponent<Renderer>() as Renderer;
             m_CanvasRenderer.enabled = false;
         }
+        */
+
+        ////
+        /// <summary>
+        /// The CancellationTokenSource.
+        /// </summary>
+        CancellationTokenSource cts = new CancellationTokenSource();
+
+        // Use this for initialization
+        async void Start()
+        {
+            faces = new MatOfRect();
+
+            // Asynchronously retrieves the readable file path from the StreamingAssets directory.
+            Debug.Log("Preparing file access...");
+
+            string cascade_filepath = await Utils.getFilePathAsyncTask("OpenCVForUnity/objdetect/haarcascade_frontalface_alt.xml", cancellationToken: cts.Token);
+
+            Debug.Log("Preparing file access complete!");
+
+            cascade = new CascadeClassifier();
+            cascade.load(cascade_filepath);
+
+
+            isBlendModeBlendToggle.isOn = isBlendModeBlend;
+            saveTextureToGalleryToggle.isOn = saveTextureToGallery;
+
+            m_Canvas = GameObject.Find("PhotoCaptureCanvas");
+            m_CanvasRenderer = m_Canvas.GetComponent<Renderer>() as Renderer;
+            m_CanvasRenderer.enabled = false;
+        }
+        //////
 
         /// <summary> Use this for initialization. </summary>
         void Create(Action<NRPhotoCapture> onCreated)
@@ -217,10 +251,10 @@ namespace NrealLightWithOpenCVForUnityExample
                 rgbMat = new Mat(m_Texture.height, m_Texture.width, CvType.CV_8UC3);
                 grayMat = new Mat(rgbMat.rows(), rgbMat.cols(), CvType.CV_8UC1);
 
-                faces = new MatOfRect();
+                //faces = new MatOfRect();
 
-                cascade = new CascadeClassifier();
-                cascade.load(Utils.getFilePath("OpenCVForUnity/objdetect/haarcascade_frontalface_alt.xml"));
+                //cascade = new CascadeClassifier();
+                //cascade.load(Utils.getFilePath("OpenCVForUnity/objdetect/haarcascade_frontalface_alt.xml"));
             }
 
             // Copy the raw image data into our target texture
@@ -495,6 +529,9 @@ namespace NrealLightWithOpenCVForUnityExample
 
             if (cascade != null)
                 cascade.Dispose();
+
+            if (cts != null)
+                cts.Dispose();
         }
 
 
