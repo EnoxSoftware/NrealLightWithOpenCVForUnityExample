@@ -385,7 +385,7 @@ namespace NrealLightWithOpenCVForUnity.UnityUtils.Helper
                 Imgproc.cvtColor(baseMat, frameMat, Source2MatHelperUtils.ColorConversionCodes(baseColorFormat, outputColorFormat));
             }
 
-            FlipMat(frameMat, flipVertical, flipHorizontal);
+            FlipMat(frameMat, flipVertical, flipHorizontal, false, 0);
             if (rotatedFrameMat != null)
             {
                 Core.rotate(frameMat, rotatedFrameMat, Core.ROTATE_90_CLOCKWISE);
@@ -398,10 +398,14 @@ namespace NrealLightWithOpenCVForUnity.UnityUtils.Helper
         }
 
         /// <summary>
-        /// Flip the mat.
+        /// Flip Mat
         /// </summary>
-        /// <param name="mat">Mat.</param>
-        protected override void FlipMat(Mat mat, bool flipVertical, bool flipHorizontal)
+        /// <param name="mat"></param>
+        /// <param name="flipVertical"></param>
+        /// <param name="flipHorizontal"></param>
+        /// <param name="isFrontFacing"></param>
+        /// <param name="videoRotationAngle"></param>
+        protected override void FlipMat(Mat mat, bool flipVertical, bool flipHorizontal, bool isFrontFacing, int videoRotationAngle)
         {
             int flipCode = int.MinValue;
 
