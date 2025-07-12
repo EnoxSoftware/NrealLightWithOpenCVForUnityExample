@@ -15,7 +15,7 @@
 * Nreal Light (XREAL Light)
 * Unity 2021.3.35f1+ (NRSDK supports the development environment of Unity 2019.4.X and above)
 * [NRSDK](https://docs.xreal.com/Release%20Note/NRSDK%202.1.0) NRSDKForUnity 2.1.0 
-* [OpenCV for Unity](https://assetstore.unity.com/packages/tools/integration/opencv-for-unity-21088?aid=1011l4ehR) 2.6.4+ 
+* [OpenCV for Unity](https://assetstore.unity.com/packages/tools/integration/opencv-for-unity-21088?aid=1011l4ehR) 3.0.0+ 
 
 
 ## Setup

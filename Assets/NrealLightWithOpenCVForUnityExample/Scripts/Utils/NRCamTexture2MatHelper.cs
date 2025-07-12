@@ -4,12 +4,12 @@
 using NRKernal;
 using OpenCVForUnity.CoreModule;
 using OpenCVForUnity.ImgprocModule;
-using OpenCVForUnity.UnityUtils;
-using OpenCVForUnity.UnityUtils.Helper;
+using OpenCVForUnity.UnityIntegration;
+using OpenCVForUnity.UnityIntegration.Helper.Source2Mat;
 using System.Collections;
 using UnityEngine;
 
-namespace NrealLightWithOpenCVForUnity.UnityUtils.Helper
+namespace NrealLightWithOpenCVForUnity.UnityIntegration.Helper.Source2Mat
 {
     /// <summary>
     /// A helper component class for obtaining camera frames from Nreal NRRGBCamTexture and converting them to OpenCV <c>Mat</c> format in real-time.
@@ -119,8 +119,8 @@ namespace NrealLightWithOpenCVForUnity.UnityUtils.Helper
             {
                 ReleaseResources();
 
-                if (onDisposed != null)
-                    onDisposed.Invoke();
+                if (OnDisposed != null)
+                    OnDisposed.Invoke();
             }
 
             isInitWaiting = true;
@@ -139,8 +139,8 @@ namespace NrealLightWithOpenCVForUnity.UnityUtils.Helper
                 isInitWaiting = false;
                 initCoroutine = null;
 
-                if (onErrorOccurred != null)
-                    onErrorOccurred.Invoke(Source2MatHelperErrorCode.CAMERA_PERMISSION_DENIED, string.Empty);
+                if (OnErrorOccurred != null)
+                    OnErrorOccurred.Invoke(Source2MatHelperErrorCode.CAMERA_PERMISSION_DENIED, string.Empty);
 
                 yield break;
             }
@@ -157,7 +157,7 @@ namespace NrealLightWithOpenCVForUnity.UnityUtils.Helper
             while (true)
             {
 
-                if (initFrameCount > timeoutFrameCount)
+                if (initFrameCount > TimeoutFrameCount)
                 {
                     isTimeout = true;
                     break;
@@ -168,21 +168,21 @@ namespace NrealLightWithOpenCVForUnity.UnityUtils.Helper
 
                     baseMat = new Mat(nrRGBCamTexture.Height, nrRGBCamTexture.Width, CvType.CV_8UC3);
 
-                    if (baseColorFormat == outputColorFormat)
+                    if (baseColorFormat == OutputColorFormat)
                     {
                         frameMat = baseMat;
                     }
                     else
                     {
-                        frameMat = new Mat(baseMat.rows(), baseMat.cols(), CvType.CV_8UC(Source2MatHelperUtils.Channels(outputColorFormat)), new Scalar(0, 0, 0, 255));
+                        frameMat = new Mat(baseMat.rows(), baseMat.cols(), CvType.CV_8UC(Source2MatHelperUtils.Channels(OutputColorFormat)), new Scalar(0, 0, 0, 255));
                     }
 
                     screenOrientation = Screen.orientation;
                     screenWidth = Screen.width;
                     screenHeight = Screen.height;
 
-                    if (rotate90Degree)
-                        rotatedFrameMat = new Mat(frameMat.cols(), frameMat.rows(), CvType.CV_8UC(Source2MatHelperUtils.Channels(outputColorFormat)), new Scalar(0, 0, 0, 255));
+                    if (Rotate90Degree)
+                        rotatedFrameMat = new Mat(frameMat.cols(), frameMat.rows(), CvType.CV_8UC(Source2MatHelperUtils.Channels(OutputColorFormat)), new Scalar(0, 0, 0, 255));
 
                     isInitWaiting = false;
                     hasInitDone = true;
@@ -202,7 +202,7 @@ namespace NrealLightWithOpenCVForUnity.UnityUtils.Helper
                     // Get projection Matrix
                     //
                     //NativeMat3f mat = NRFrame.GetDeviceIntrinsicMatrix(NativeDevice.RGB_CAMERA);// Get the rgb camera's intrinsic matrix
-                    //projectionMatrix = ARUtils.CalculateProjectionMatrixFromCameraMatrixValues(mat.column0.X, mat.column1.Y,
+                    //projectionMatrix = OpenCVARUtils.CalculateProjectionMatrixFromCameraMatrixValues(mat.column0.X, mat.column1.Y,
                     //    mat.column2.X, mat.column2.Y, NRFrame.GetDeviceResolution(NativeDevice.RGB_CAMERA).width, NRFrame.GetDeviceResolution(NativeDevice.RGB_CAMERA).height, 0.3f, 1000f);
                     //
                     // or
@@ -218,8 +218,8 @@ namespace NrealLightWithOpenCVForUnity.UnityUtils.Helper
                     //
 
 
-                    if (onInitialized != null)
-                        onInitialized.Invoke();
+                    if (OnInitialized != null)
+                        OnInitialized.Invoke();
 
                     break;
                 }
@@ -237,8 +237,8 @@ namespace NrealLightWithOpenCVForUnity.UnityUtils.Helper
                 isInitWaiting = false;
                 initCoroutine = null;
 
-                if (onErrorOccurred != null)
-                    onErrorOccurred.Invoke(Source2MatHelperErrorCode.TIMEOUT, string.Empty);
+                if (OnErrorOccurred != null)
+                    OnErrorOccurred.Invoke(Source2MatHelperErrorCode.TIMEOUT, string.Empty);
             }
         }
 
@@ -375,17 +375,17 @@ namespace NrealLightWithOpenCVForUnity.UnityUtils.Helper
                 return (rotatedFrameMat != null) ? rotatedFrameMat : frameMat;
             }
 
-            if (baseColorFormat == outputColorFormat)
+            if (baseColorFormat == OutputColorFormat)
             {
-                Utils.texture2DToMat(nrRGBCamTexture.GetTexture(), frameMat, false);
+                OpenCVMatUtils.Texture2DToMat(nrRGBCamTexture.GetTexture(), frameMat, false);
             }
             else
             {
-                Utils.texture2DToMat(nrRGBCamTexture.GetTexture(), baseMat, false);
-                Imgproc.cvtColor(baseMat, frameMat, Source2MatHelperUtils.ColorConversionCodes(baseColorFormat, outputColorFormat));
+                OpenCVMatUtils.Texture2DToMat(nrRGBCamTexture.GetTexture(), baseMat, false);
+                Imgproc.cvtColor(baseMat, frameMat, Source2MatHelperUtils.ColorConversionCodes(baseColorFormat, OutputColorFormat));
             }
 
-            FlipMat(frameMat, flipVertical, flipHorizontal, false, 0);
+            FlipMat(frameMat, FlipVertical, FlipHorizontal, false, 0);
             if (rotatedFrameMat != null)
             {
                 Core.rotate(frameMat, rotatedFrameMat, Core.ROTATE_90_CLOCKWISE);
@@ -518,8 +518,8 @@ namespace NrealLightWithOpenCVForUnity.UnityUtils.Helper
             {
                 ReleaseResources();
 
-                if (onDisposed != null)
-                    onDisposed.Invoke();
+                if (OnDisposed != null)
+                    OnDisposed.Invoke();
             }
         }
 

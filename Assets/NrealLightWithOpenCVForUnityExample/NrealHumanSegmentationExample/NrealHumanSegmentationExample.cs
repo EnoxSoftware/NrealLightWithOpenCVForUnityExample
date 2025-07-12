@@ -12,11 +12,12 @@ using UnityEngine.SceneManagement;
 using OpenCVForUnity.CoreModule;
 using OpenCVForUnity.DnnModule;
 using OpenCVForUnity.ImgprocModule;
-using OpenCVForUnity.UnityUtils;
-using OpenCVForUnity.UnityUtils.Helper;
-using NrealLightWithOpenCVForUnity.UnityUtils.Helper;
+using OpenCVForUnity.UnityIntegration;
+using OpenCVForUnity.UnityIntegration.Helper.Source2Mat;
+using NrealLightWithOpenCVForUnity.UnityIntegration.Helper.Source2Mat;
 using NRKernal;
 using System.Threading;
+using OpenCVForUnity.UnityIntegration.Helper.Optimization;
 
 namespace NrealLightWithOpenCVForUnityExample
 {
@@ -57,7 +58,7 @@ namespace NrealLightWithOpenCVForUnityExample
         /// <summary>
         /// MODEL_FILENAME
         /// </summary>
-        protected static readonly string MODEL_FILENAME = "OpenCVForUnity/dnn/human_segmentation_pphumanseg_2023mar.onnx";
+        protected static readonly string MODEL_FILENAME = "OpenCVForUnityExample/dnn/human_segmentation_pphumanseg_2023mar.onnx";
 
         /// <summary>
         /// The model filepath.
@@ -115,7 +116,7 @@ namespace NrealLightWithOpenCVForUnityExample
             getFilePath_Coroutine = GetFilePath();
             StartCoroutine(getFilePath_Coroutine);
 #else
-            model_filepath = Utils.getFilePath(MODEL_FILENAME);
+            model_filepath = OpenCVEnv.GetFilePath(MODEL_FILENAME);
             Run();
 #endif
         }
@@ -139,7 +140,7 @@ namespace NrealLightWithOpenCVForUnityExample
         protected virtual void Run()
         {
             //if true, The error log of the Native side OpenCV will be displayed on the Unity Editor Console.
-            Utils.setDebugMode(true);
+            OpenCVDebug.SetDebugMode(true);
 
             if (string.IsNullOrEmpty(model_filepath))
             {
@@ -150,7 +151,7 @@ namespace NrealLightWithOpenCVForUnityExample
                 net = Dnn.readNet(model_filepath);
             }
 
-            webCamTextureToMatHelper.outputColorFormat = Source2MatHelperColorFormat.RGB;
+            webCamTextureToMatHelper.OutputColorFormat = Source2MatHelperColorFormat.RGB;
             webCamTextureToMatHelper.Initialize();
         }
         */
@@ -175,7 +176,7 @@ namespace NrealLightWithOpenCVForUnityExample
             // Asynchronously retrieves the readable file path from the StreamingAssets directory.
             Debug.Log("Preparing file access...");
 
-            model_filepath = await Utils.getFilePathAsyncTask(MODEL_FILENAME, cancellationToken: cts.Token);
+            model_filepath = await OpenCVEnv.GetFilePathTaskAsync(MODEL_FILENAME, cancellationToken: cts.Token);
 
             Debug.Log("Preparing file access complete!");
 
@@ -186,18 +187,18 @@ namespace NrealLightWithOpenCVForUnityExample
         void Run()
         {
             //if true, The error log of the Native side OpenCV will be displayed on the Unity Editor Console.
-            Utils.setDebugMode(true);
+            OpenCVDebug.SetDebugMode(true);
 
             if (string.IsNullOrEmpty(model_filepath))
             {
-                Debug.LogError(MODEL_FILENAME + " is not loaded. Please read “StreamingAssets/OpenCVForUnity/dnn/setup_dnn_module.pdf” to make the necessary setup.");
+                Debug.LogError(MODEL_FILENAME + " is not loaded. Please read “StreamingAssets/OpenCVForUnityExample/dnn/setup_dnn_module.pdf” to make the necessary setup.");
             }
             else
             {
                 net = Dnn.readNet(model_filepath);
             }
 
-            webCamTextureToMatHelper.outputColorFormat = Source2MatHelperColorFormat.RGB;
+            webCamTextureToMatHelper.OutputColorFormat = Source2MatHelperColorFormat.RGB;
             webCamTextureToMatHelper.Initialize();
         }
         ////
@@ -308,7 +309,7 @@ namespace NrealLightWithOpenCVForUnityExample
                     blob.Dispose();
                 }
 
-                Utils.matToTexture2D(rgbMat, texture);
+                OpenCVMatUtils.MatToTexture2D(rgbMat, texture);
             }
 
             if (webCamTextureToMatHelper.IsPlaying())
@@ -386,7 +387,7 @@ namespace NrealLightWithOpenCVForUnityExample
             if (net != null)
                 net.Dispose();
 
-            Utils.setDebugMode(false);
+            OpenCVDebug.SetDebugMode(false);
 
             if (cts != null)
                 cts.Dispose();
@@ -429,7 +430,7 @@ namespace NrealLightWithOpenCVForUnityExample
         /// </summary>
         public virtual void OnChangeCameraButtonClick()
         {
-            webCamTextureToMatHelper.requestedIsFrontFacing = !webCamTextureToMatHelper.requestedIsFrontFacing;
+            webCamTextureToMatHelper.RequestedIsFrontFacing = !webCamTextureToMatHelper.RequestedIsFrontFacing;
         }
 
         /// <summary>

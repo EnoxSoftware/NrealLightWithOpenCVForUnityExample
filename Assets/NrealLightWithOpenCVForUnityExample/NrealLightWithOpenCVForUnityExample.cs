@@ -4,6 +4,7 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using OpenCVForUnity.CoreModule;
 using NRKernal;
+using OpenCVForUnity.UnityIntegration;
 
 namespace NrealLightWithOpenCVForUnityExample
 {
@@ -22,7 +23,7 @@ namespace NrealLightWithOpenCVForUnityExample
         {
             exampleTitle.text = "NrealLightWithOpenCVForUnity Example " + Application.version;
 
-            versionInfo.text = Core.NATIVE_LIBRARY_NAME + " " + OpenCVForUnity.UnityUtils.Utils.getVersion() + " (" + Core.VERSION + ")";
+            versionInfo.text = Core.NATIVE_LIBRARY_NAME + " " + OpenCVEnv.GetVersion() + " (" + Core.VERSION + ")";
             versionInfo.text += " / UnityEditor " + Application.unityVersion;
 #if UNITY_ANDROID && !UNITY_EDITOR
             versionInfo.text += " / NRSDK " + NRVersionInfo.GetVersion();

@@ -1,18 +1,20 @@
 #if !(PLATFORM_LUMIN && !UNITY_EDITOR)
 
-using NrealLightWithOpenCVForUnity.UnityUtils.Helper;
+using NrealLightWithOpenCVForUnity.UnityIntegration.Helper.Source2Mat;
 using NRKernal;
 using OpenCVForUnity.Calib3dModule;
 using OpenCVForUnity.CoreModule;
 using OpenCVForUnity.ImgprocModule;
-using OpenCVForUnity.UnityUtils;
-using OpenCVForUnity.UnityUtils.Helper;
+using OpenCVForUnity.UnityIntegration;
+using OpenCVForUnity.UnityIntegration.Helper.Source2Mat;
 using OpenCVForUnity.ObjdetectModule;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using OpenCVForUnity.UnityIntegration.Helper.Optimization;
+using static OpenCVForUnity.UnityIntegration.OpenCVARUtils;
 
 namespace NrealLightWithOpenCVForUnityExample
 {
@@ -214,7 +216,7 @@ namespace NrealLightWithOpenCVForUnityExample
 
             imageOptimizationHelper = gameObject.GetComponent<ImageOptimizationHelper>();
             webCamTextureToMatHelper = gameObject.GetComponent<NRCamTexture2MatHelper>();
-            webCamTextureToMatHelper.outputColorFormat = Source2MatHelperColorFormat.GRAY;
+            webCamTextureToMatHelper.OutputColorFormat = Source2MatHelperColorFormat.GRAY;
             webCamTextureToMatHelper.Initialize();
         }
 
@@ -276,14 +278,14 @@ namespace NrealLightWithOpenCVForUnityExample
             // if WebCamera is frontFaceing, flip Mat.
             if (webCamTextureToMatHelper.GetWebCamDevice().isFrontFacing)
             {
-                webCamTextureToMatHelper.flipHorizontal = true;
+                webCamTextureToMatHelper.FlipHorizontal = true;
             }
 
 #endif
 
             if (enableDownScale)
             {
-                float DOWNSCALE_RATIO = imageOptimizationHelper.downscaleRatio;
+                float DOWNSCALE_RATIO = imageOptimizationHelper.DownscaleRatio;
                 double[] data = new double[(int)camMatrix.total()];
                 camMatrix.get(0, 0, data);
                 data[0] /= DOWNSCALE_RATIO;
@@ -516,10 +518,10 @@ namespace NrealLightWithOpenCVForUnityExample
                                 rvec.get(0, 0, rvecArr);
                                 double[] tvecArr = new double[3];
                                 tvec.get(0, 0, tvecArr);
-                                PoseData poseData = ARUtils.ConvertRvecTvecToPoseData(rvecArr, tvecArr);
+                                PoseData poseData = OpenCVARUtils.ConvertRvecTvecToPoseData(rvecArr, tvecArr);
 
                                 // Create transform matrix.
-                                transformationM = Matrix4x4.TRS(poseData.pos, poseData.rot, Vector3.one);
+                                transformationM = Matrix4x4.TRS(poseData.Pos, poseData.Rot, Vector3.one);
 
                                 // Right-handed coordinates system (OpenCV) to left-handed one (Unity)
                                 // https://stackoverflow.com/questions/30234945/change-handedness-of-a-row-major-4x4-transformation-matrix
@@ -560,7 +562,7 @@ namespace NrealLightWithOpenCVForUnityExample
                     }
                 }
 
-                Utils.matToTexture2D(rgbMat4preview, texture);
+                OpenCVMatUtils.MatToTexture2D(rgbMat4preview, texture);
             }
 
             if (applyEstimationPose)
@@ -585,7 +587,7 @@ namespace NrealLightWithOpenCVForUnityExample
                     }
                     else
                     {
-                        ARUtils.SetTransformFromMatrix(arGameObject.transform, ref ARM);
+                        OpenCVARUtils.SetTransformFromMatrix(arGameObject.transform, ref ARM);
                     }
                 }
             }
@@ -655,7 +657,7 @@ namespace NrealLightWithOpenCVForUnityExample
         /// </summary>
         public void OnChangeCameraButtonClick()
         {
-            webCamTextureToMatHelper.requestedIsFrontFacing = !webCamTextureToMatHelper.requestedIsFrontFacing;
+            webCamTextureToMatHelper.RequestedIsFrontFacing = !webCamTextureToMatHelper.RequestedIsFrontFacing;
         }
 
         /// <summary>

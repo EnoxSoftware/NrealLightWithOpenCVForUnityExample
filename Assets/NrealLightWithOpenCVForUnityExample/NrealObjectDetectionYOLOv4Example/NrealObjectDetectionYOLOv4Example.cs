@@ -10,13 +10,14 @@ using UnityEngine.SceneManagement;
 using OpenCVForUnity.CoreModule;
 using OpenCVForUnity.DnnModule;
 using OpenCVForUnity.ImgprocModule;
-using OpenCVForUnity.UnityUtils;
-using OpenCVForUnity.UnityUtils.Helper;
-using NrealLightWithOpenCVForUnity.UnityUtils.Helper;
+using OpenCVForUnity.UnityIntegration;
+using OpenCVForUnity.UnityIntegration.Helper.Source2Mat;
+using NrealLightWithOpenCVForUnity.UnityIntegration.Helper.Source2Mat;
 using NRKernal;
 using System.Text;
 using OpenCVRect = OpenCVForUnity.CoreModule.Rect;
 using System.Threading;
+using OpenCVForUnity.UnityIntegration.Helper.Optimization;
 
 namespace NrealLightWithOpenCVForUnityExample
 {
@@ -134,18 +135,18 @@ namespace NrealLightWithOpenCVForUnityExample
 
             if (!string.IsNullOrEmpty(classes))
             {
-                classes_filepath = Utils.getFilePath("OpenCVForUnity/dnn/" + classes);
-                if (string.IsNullOrEmpty(classes_filepath)) Debug.Log("The file:" + classes + " did not exist in the folder “Assets/StreamingAssets/OpenCVForUnity/dnn”.");
+                classes_filepath = OpenCVEnv.GetFilePath("OpenCVForUnityExample/dnn/" + classes);
+                if (string.IsNullOrEmpty(classes_filepath)) Debug.Log("The file:" + classes + " did not exist in the folder “Assets/StreamingAssets/OpenCVForUnityExample/dnn”.");
             }
             if (!string.IsNullOrEmpty(config))
             {
-                config_filepath = Utils.getFilePath("OpenCVForUnity/dnn/" + config);
-                if (string.IsNullOrEmpty(config_filepath)) Debug.Log("The file:" + config + " did not exist in the folder “Assets/StreamingAssets/OpenCVForUnity/dnn”.");
+                config_filepath = OpenCVEnv.GetFilePath("OpenCVForUnityExample/dnn/" + config);
+                if (string.IsNullOrEmpty(config_filepath)) Debug.Log("The file:" + config + " did not exist in the folder “Assets/StreamingAssets/OpenCVForUnityExample/dnn”.");
             }
             if (!string.IsNullOrEmpty(model))
             {
-                model_filepath = Utils.getFilePath("OpenCVForUnity/dnn/" + model);
-                if (string.IsNullOrEmpty(model_filepath)) Debug.Log("The file:" + model + " did not exist in the folder “Assets/StreamingAssets/OpenCVForUnity/dnn”.");
+                model_filepath = OpenCVEnv.GetFilePath("OpenCVForUnityExample/dnn/" + model);
+                if (string.IsNullOrEmpty(model_filepath)) Debug.Log("The file:" + model + " did not exist in the folder “Assets/StreamingAssets/OpenCVForUnityExample/dnn”.");
             }
 
             Run();
@@ -156,7 +157,7 @@ namespace NrealLightWithOpenCVForUnityExample
         protected virtual void Run()
         {
             //if true, The error log of the Native side OpenCV will be displayed on the Unity Editor Console.
-            Utils.setDebugMode(true);
+            OpenCVDebug.SetDebugMode(true);
 
             if (string.IsNullOrEmpty(model_filepath) || string.IsNullOrEmpty(classes_filepath))
             {
@@ -167,7 +168,7 @@ namespace NrealLightWithOpenCVForUnityExample
                 objectDetector = new YOLOv4ObjectDetector(model_filepath, config_filepath, classes_filepath, new Size(inpWidth, inpHeight), confThreshold, nmsThreshold/*, topK);
             }
 
-            webCamTextureToMatHelper.outputColorFormat = Source2MatHelperColorFormat.RGB;
+            webCamTextureToMatHelper.OutputColorFormat = Source2MatHelperColorFormat.RGB;
             webCamTextureToMatHelper.Initialize();
         }
 */
@@ -193,18 +194,18 @@ namespace NrealLightWithOpenCVForUnityExample
 
             if (!string.IsNullOrEmpty(classes))
             {
-                classes_filepath = await Utils.getFilePathAsyncTask("OpenCVForUnity/dnn/" + classes, cancellationToken: cts.Token);
-                if (string.IsNullOrEmpty(classes_filepath)) Debug.Log("The file:" + classes + " did not exist in the folder “Assets/StreamingAssets/OpenCVForUnity/dnn”.");
+                classes_filepath = await OpenCVEnv.GetFilePathTaskAsync("OpenCVForUnityExample/dnn/" + classes, cancellationToken: cts.Token);
+                if (string.IsNullOrEmpty(classes_filepath)) Debug.Log("The file:" + classes + " did not exist in the folder “Assets/StreamingAssets/OpenCVForUnityExample/dnn”.");
             }
             if (!string.IsNullOrEmpty(config))
             {
-                config_filepath = await Utils.getFilePathAsyncTask("OpenCVForUnity/dnn/" + config, cancellationToken: cts.Token);
-                if (string.IsNullOrEmpty(config_filepath)) Debug.Log("The file:" + config + " did not exist in the folder “Assets/StreamingAssets/OpenCVForUnity/dnn”.");
+                config_filepath = await OpenCVEnv.GetFilePathTaskAsync("OpenCVForUnityExample/dnn/" + config, cancellationToken: cts.Token);
+                if (string.IsNullOrEmpty(config_filepath)) Debug.Log("The file:" + config + " did not exist in the folder “Assets/StreamingAssets/OpenCVForUnityExample/dnn”.");
             }
             if (!string.IsNullOrEmpty(model))
             {
-                model_filepath = await Utils.getFilePathAsyncTask("OpenCVForUnity/dnn/" + model, cancellationToken: cts.Token);
-                if (string.IsNullOrEmpty(model_filepath)) Debug.Log("The file:" + model + " did not exist in the folder “Assets/StreamingAssets/OpenCVForUnity/dnn”.");
+                model_filepath = await OpenCVEnv.GetFilePathTaskAsync("OpenCVForUnityExample/dnn/" + model, cancellationToken: cts.Token);
+                if (string.IsNullOrEmpty(model_filepath)) Debug.Log("The file:" + model + " did not exist in the folder “Assets/StreamingAssets/OpenCVForUnityExample/dnn”.");
             }
 
             Debug.Log("Preparing file access complete!");
@@ -216,7 +217,7 @@ namespace NrealLightWithOpenCVForUnityExample
         void Run()
         {
             //if true, The error log of the Native side OpenCV will be displayed on the Unity Editor Console.
-            Utils.setDebugMode(true);
+            OpenCVDebug.SetDebugMode(true);
 
             if (string.IsNullOrEmpty(model_filepath) || string.IsNullOrEmpty(classes_filepath))
             {
@@ -227,7 +228,7 @@ namespace NrealLightWithOpenCVForUnityExample
                 objectDetector = new YOLOv4ObjectDetector(model_filepath, config_filepath, classes_filepath, new Size(inpWidth, inpHeight), confThreshold, nmsThreshold/*, topK*/);
             }
 
-            webCamTextureToMatHelper.outputColorFormat = Source2MatHelperColorFormat.RGB;
+            webCamTextureToMatHelper.OutputColorFormat = Source2MatHelperColorFormat.RGB;
             webCamTextureToMatHelper.Initialize();
         }
         ////
@@ -370,7 +371,7 @@ namespace NrealLightWithOpenCVForUnityExample
                     objectDetector.visualize(rgbMat, results, false, true);
                 }
 
-                Utils.matToTexture2D(rgbMat, texture);
+                OpenCVMatUtils.MatToTexture2D(rgbMat, texture);
             }
 
             if (webCamTextureToMatHelper.IsPlaying())
@@ -448,7 +449,7 @@ namespace NrealLightWithOpenCVForUnityExample
             if (objectDetector != null)
                 objectDetector.dispose();
 
-            Utils.setDebugMode(false);
+            OpenCVDebug.SetDebugMode(false);
 
             if (cts != null)
                 cts.Dispose();
@@ -491,7 +492,7 @@ namespace NrealLightWithOpenCVForUnityExample
         /// </summary>
         public virtual void OnChangeCameraButtonClick()
         {
-            webCamTextureToMatHelper.requestedIsFrontFacing = !webCamTextureToMatHelper.requestedIsFrontFacing;
+            webCamTextureToMatHelper.RequestedIsFrontFacing = !webCamTextureToMatHelper.RequestedIsFrontFacing;
         }
 
         /// <summary>

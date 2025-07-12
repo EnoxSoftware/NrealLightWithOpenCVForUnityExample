@@ -2,13 +2,14 @@
 
 #if !UNITY_WSA_10_0
 
-using NrealLightWithOpenCVForUnity.UnityUtils.Helper;
+using NrealLightWithOpenCVForUnity.UnityIntegration.Helper.Source2Mat;
 using NRKernal;
 using OpenCVForUnity.CoreModule;
 using OpenCVForUnity.ImgprocModule;
 using OpenCVForUnity.ObjdetectModule;
-using OpenCVForUnity.UnityUtils;
-using OpenCVForUnity.UnityUtils.Helper;
+using OpenCVForUnity.UnityIntegration;
+using OpenCVForUnity.UnityIntegration.Helper.Optimization;
+using OpenCVForUnity.UnityIntegration.Helper.Source2Mat;
 using System.Runtime.InteropServices;
 using System.Threading;
 using UnityEngine;
@@ -130,7 +131,7 @@ namespace NrealLightWithOpenCVForUnityExample
         protected virtual void Start()
         {
             //if true, The error log of the Native side OpenCV will be displayed on the Unity Editor Console.
-            Utils.setDebugMode(true);
+            OpenCVDebug.SetDebugMode(true);
 
 
             enableFrameSkipToggle.isOn = enableFrameSkip;
@@ -140,17 +141,17 @@ namespace NrealLightWithOpenCVForUnityExample
             webCamTextureToMatHelper = gameObject.GetComponent<NRCamTexture2MatHelper>();
 
 
-            string fd_modelPath = Utils.getFilePath(MODEL_FILENAME);
+            string fd_modelPath = OpenCVEnv.GetFilePath(MODEL_FILENAME);
             if (string.IsNullOrEmpty(fd_modelPath))
             {
-                Debug.LogError(MODEL_FILENAME + " is not loaded. Please read “StreamingAssets/OpenCVForUnity/objdetect/setup_objdetect_module.pdf” to make the necessary setup.");
+                Debug.LogError(MODEL_FILENAME + " is not loaded. Please read “StreamingAssets/OpenCVForUnityExample/objdetect/setup_objdetect_module.pdf” to make the necessary setup.");
             }
             else
             {
                 faceDetector = FaceDetectorYN.create(fd_modelPath, "", new Size(inputSizeW, inputSizeH), scoreThreshold, nmsThreshold, topK);
             }
 
-            webCamTextureToMatHelper.outputColorFormat = Source2MatHelperColorFormat.RGB;
+            webCamTextureToMatHelper.OutputColorFormat = Source2MatHelperColorFormat.RGB;
             webCamTextureToMatHelper.Initialize();
         }
         */
@@ -176,7 +177,7 @@ namespace NrealLightWithOpenCVForUnityExample
             // Asynchronously retrieves the readable file path from the StreamingAssets directory.
             Debug.Log("Preparing file access...");
 
-            fd_modelPath = await Utils.getFilePathAsyncTask(MODEL_FILENAME, cancellationToken: cts.Token);
+            fd_modelPath = await OpenCVEnv.GetFilePathTaskAsync(MODEL_FILENAME, cancellationToken: cts.Token);
 
             Debug.Log("Preparing file access complete!");
 
@@ -187,18 +188,18 @@ namespace NrealLightWithOpenCVForUnityExample
         void Run()
         {
             //if true, The error log of the Native side OpenCV will be displayed on the Unity Editor Console.
-            Utils.setDebugMode(true);
+            OpenCVDebug.SetDebugMode(true);
 
             if (string.IsNullOrEmpty(fd_modelPath))
             {
-                Debug.LogError(MODEL_FILENAME + " is not loaded. Please read “StreamingAssets/OpenCVForUnity/objdetect/setup_objdetect_module.pdf” to make the necessary setup.");
+                Debug.LogError(MODEL_FILENAME + " is not loaded. Please read “StreamingAssets/OpenCVForUnityExample/objdetect/setup_objdetect_module.pdf” to make the necessary setup.");
             }
             else
             {
                 faceDetector = FaceDetectorYN.create(fd_modelPath, "", new Size(inputSizeW, inputSizeH), scoreThreshold, nmsThreshold, topK);
             }
 
-            webCamTextureToMatHelper.outputColorFormat = Source2MatHelperColorFormat.RGB;
+            webCamTextureToMatHelper.OutputColorFormat = Source2MatHelperColorFormat.RGB;
             webCamTextureToMatHelper.Initialize();
         }
         ////
@@ -324,7 +325,7 @@ namespace NrealLightWithOpenCVForUnityExample
                     Imgproc.putText(rgbMat, "model file is not loaded.", new Point(5, rgbMat.rows() - 30), Imgproc.FONT_HERSHEY_SIMPLEX, 0.7, new Scalar(255, 255, 255, 255), 2, Imgproc.LINE_AA, false);
                     Imgproc.putText(rgbMat, "Please read console message.", new Point(5, rgbMat.rows() - 10), Imgproc.FONT_HERSHEY_SIMPLEX, 0.7, new Scalar(255, 255, 255, 255), 2, Imgproc.LINE_AA, false);
 
-                    Utils.matToTexture2D(rgbMat, texture);
+                    OpenCVMatUtils.MatToTexture2D(rgbMat, texture);
                     return;
                 }
 
@@ -343,7 +344,7 @@ namespace NrealLightWithOpenCVForUnityExample
                     DrawDetection(d, rgbMat);
                 }
 
-                Utils.matToTexture2D(rgbMat, texture);
+                OpenCVMatUtils.MatToTexture2D(rgbMat, texture);
             }
 
             if (webCamTextureToMatHelper.IsPlaying())
@@ -421,7 +422,7 @@ namespace NrealLightWithOpenCVForUnityExample
             if (faceDetector != null)
                 faceDetector.Dispose();
 
-            Utils.setDebugMode(false);
+            OpenCVDebug.SetDebugMode(false);
 
             if (cts != null)
                 cts.Dispose();
@@ -464,7 +465,7 @@ namespace NrealLightWithOpenCVForUnityExample
         /// </summary>
         public virtual void OnChangeCameraButtonClick()
         {
-            webCamTextureToMatHelper.requestedIsFrontFacing = !webCamTextureToMatHelper.requestedIsFrontFacing;
+            webCamTextureToMatHelper.RequestedIsFrontFacing = !webCamTextureToMatHelper.RequestedIsFrontFacing;
         }
 
         /// <summary>

@@ -4,7 +4,7 @@ using NRKernal.Record;
 using OpenCVForUnity.CoreModule;
 using OpenCVForUnity.ImgprocModule;
 using OpenCVForUnity.ObjdetectModule;
-using OpenCVForUnity.UnityUtils;
+using OpenCVForUnity.UnityIntegration;
 using System;
 using System.Linq;
 using System.Threading;
@@ -116,7 +116,7 @@ namespace NrealLightWithOpenCVForUnityExample
             // Asynchronously retrieves the readable file path from the StreamingAssets directory.
             Debug.Log("Preparing file access...");
 
-            string cascade_filepath = await Utils.getFilePathAsyncTask("OpenCVForUnity/objdetect/haarcascade_frontalface_alt.xml", cancellationToken: cts.Token);
+            string cascade_filepath = await OpenCVEnv.GetFilePathTaskAsync("OpenCVForUnityExample/objdetect/haarcascade_frontalface_alt.xml", cancellationToken: cts.Token);
 
             Debug.Log("Preparing file access complete!");
 
@@ -261,7 +261,7 @@ namespace NrealLightWithOpenCVForUnityExample
             photoCaptureFrame.UploadImageDataToTexture(m_Texture);
 
 
-            Utils.texture2DToMat(m_Texture, rgbMat);
+            OpenCVMatUtils.Texture2DToMat(m_Texture, rgbMat);
 
             Imgproc.cvtColor(rgbMat, grayMat, Imgproc.COLOR_RGBA2GRAY);
             Imgproc.equalizeHist(grayMat, grayMat);
@@ -286,7 +286,7 @@ namespace NrealLightWithOpenCVForUnityExample
 
             Imgproc.putText(rgbMat, "W:" + rgbMat.width() + " H:" + rgbMat.height() + " SO:" + Screen.orientation, new Point(5, rgbMat.rows() - 10), Imgproc.FONT_HERSHEY_SIMPLEX, 1.5, new Scalar(0, 255, 0, 255), 2, Imgproc.LINE_AA, false);
 
-            Utils.matToTexture2D(rgbMat, m_Texture);
+            OpenCVMatUtils.MatToTexture2D(rgbMat, m_Texture);
 
 
             m_Texture.wrapMode = TextureWrapMode.Clamp;
@@ -376,34 +376,34 @@ namespace NrealLightWithOpenCVForUnityExample
             // Head/IMU
             Pose headPose = NRFrame.HeadPose;
             Matrix4x4 headPoseM = Matrix4x4.TRS(headPose.position, headPose.rotation, Vector3.one);
-            ARUtils.SetTransformFromMatrix(XREAL_Head.transform, ref headPoseM);
+            OpenCVARUtils.SetTransformFromMatrix(XREAL_Head.transform, ref headPoseM);
 
             // RGB Camera
             var eyeposeFromHead = NRFrame.EyePoseFromHead;
             Pose rgbCameraPose = eyeposeFromHead.RGBEyePose;
             Matrix4x4 rgbCameraPoseFromHeadM = Matrix4x4.TRS(rgbCameraPose.position, rgbCameraPose.rotation, Vector3.one);
             Matrix4x4 rgbCameraPoseM = headPoseM * rgbCameraPoseFromHeadM;
-            ARUtils.SetTransformFromMatrix(XREAL_RGBCamera.transform, ref rgbCameraPoseM);
+            OpenCVARUtils.SetTransformFromMatrix(XREAL_RGBCamera.transform, ref rgbCameraPoseM);
 
             // 2 x Grayscale Cameras
             Pose leftGrayscaleCameraPose = NRFrame.GetDevicePoseFromHead(NativeDevice.LEFT_GRAYSCALE_CAMERA);
             Matrix4x4 leftGrayscaleCameraPoseFromHeadM = Matrix4x4.TRS(leftGrayscaleCameraPose.position, leftGrayscaleCameraPose.rotation, Vector3.one);
             Matrix4x4 leftGrayscaleCameraPoseM = headPoseM * leftGrayscaleCameraPoseFromHeadM;
-            ARUtils.SetTransformFromMatrix(XREAL_LeftGrayscaleCamera.transform, ref leftGrayscaleCameraPoseM);
+            OpenCVARUtils.SetTransformFromMatrix(XREAL_LeftGrayscaleCamera.transform, ref leftGrayscaleCameraPoseM);
             Pose rightGrayscaleCameraPose = NRFrame.GetDevicePoseFromHead(NativeDevice.RIGHT_GRAYSCALE_CAMERA);
             Matrix4x4 rightGrayscaleCameraPoseFromHeadM = Matrix4x4.TRS(rightGrayscaleCameraPose.position, rightGrayscaleCameraPose.rotation, Vector3.one);
             Matrix4x4 rightGrayscaleCameraPoseM = headPoseM * rightGrayscaleCameraPoseFromHeadM;
-            ARUtils.SetTransformFromMatrix(XREAL_RightGrayscaleCamera.transform, ref rightGrayscaleCameraPoseM);
+            OpenCVARUtils.SetTransformFromMatrix(XREAL_RightGrayscaleCamera.transform, ref rightGrayscaleCameraPoseM);
 
             // 2 x Display Cameras (LEye and REye)
             Pose lEyePose = eyeposeFromHead.LEyePose;
             Matrix4x4 lEyePoseFromHeadM = Matrix4x4.TRS(lEyePose.position, lEyePose.rotation, Vector3.one);
             Matrix4x4 lEyePoseM = headPoseM * lEyePoseFromHeadM;
-            ARUtils.SetTransformFromMatrix(XREAL_LEye.transform, ref lEyePoseM);
+            OpenCVARUtils.SetTransformFromMatrix(XREAL_LEye.transform, ref lEyePoseM);
             Pose rEyePose = eyeposeFromHead.REyePose;
             Matrix4x4 rEyePoseFromHeadM = Matrix4x4.TRS(rEyePose.position, rEyePose.rotation, Vector3.one);
             Matrix4x4 rEyePoseM = headPoseM * rEyePoseFromHeadM;
-            ARUtils.SetTransformFromMatrix(XREAL_REye.transform, ref rEyePoseM);
+            OpenCVARUtils.SetTransformFromMatrix(XREAL_REye.transform, ref rEyePoseM);
 
             // Center Eye (the pose of between left eye and right eye)
             Vector3 centerEye_pos = (eyeposeFromHead.LEyePose.position + eyeposeFromHead.REyePose.position) * 0.5f;
@@ -411,7 +411,7 @@ namespace NrealLightWithOpenCVForUnityExample
             Pose centerEyePose = new Pose(centerEye_pos, centerEye_rot);
             Matrix4x4 centerEyePoseFromHeadM = Matrix4x4.TRS(centerEyePose.position, centerEyePose.rotation, Vector3.one);
             Matrix4x4 centerEyePoseM = headPoseM * centerEyePoseFromHeadM;
-            ARUtils.SetTransformFromMatrix(XREAL_CenterEye.transform, ref centerEyePoseM);
+            OpenCVARUtils.SetTransformFromMatrix(XREAL_CenterEye.transform, ref centerEyePoseM);
 
             Debug.Log("XREAL_Head_localToWorldMatrix: \n" + XREAL_Head.transform.localToWorldMatrix.ToString());
             Debug.Log("XREAL_RGBCamera_localToWorldMatrix: \n" + XREAL_RGBCamera.transform.localToWorldMatrix.ToString());

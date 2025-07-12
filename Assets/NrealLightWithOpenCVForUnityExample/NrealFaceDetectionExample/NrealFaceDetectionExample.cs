@@ -1,13 +1,14 @@
 #if !(PLATFORM_LUMIN && !UNITY_EDITOR)
 
-using NrealLightWithOpenCVForUnity.UnityUtils.Helper;
+using NrealLightWithOpenCVForUnity.UnityIntegration.Helper.Source2Mat;
 using NrealLightWithOpenCVForUnityExample.RectangleTrack;
 using NRKernal;
 using OpenCVForUnity.CoreModule;
 using OpenCVForUnity.ImgprocModule;
 using OpenCVForUnity.ObjdetectModule;
-using OpenCVForUnity.UnityUtils;
-using OpenCVForUnity.UnityUtils.Helper;
+using OpenCVForUnity.UnityIntegration;
+using OpenCVForUnity.UnityIntegration.Helper.Optimization;
+using OpenCVForUnity.UnityIntegration.Helper.Source2Mat;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -173,7 +174,7 @@ namespace NrealLightWithOpenCVForUnityExample
 
             imageOptimizationHelper = gameObject.GetComponent<ImageOptimizationHelper>();
             webCamTextureToMatHelper = gameObject.GetComponent<NRCamTexture2MatHelper>();
-            webCamTextureToMatHelper.outputColorFormat = Source2MatHelperColorFormat.GRAY;
+            webCamTextureToMatHelper.OutputColorFormat = Source2MatHelperColorFormat.GRAY;
             webCamTextureToMatHelper.Initialize();
 
             rectangleTracker = new RectangleTracker();
@@ -204,8 +205,8 @@ namespace NrealLightWithOpenCVForUnityExample
             // Asynchronously retrieves the readable file path from the StreamingAssets directory.
             Debug.Log("Preparing file access...");
 
-            cascade_filepath = await Utils.getFilePathAsyncTask("OpenCVForUnity/objdetect/lbpcascade_frontalface.xml", cancellationToken: cts.Token);
-            cascade4Thread_filepath = await Utils.getFilePathAsyncTask("OpenCVForUnity/objdetect/haarcascade_frontalface_alt.xml", cancellationToken: cts.Token);
+            cascade_filepath = await OpenCVEnv.GetFilePathTaskAsync("OpenCVForUnityExample/objdetect/lbpcascade_frontalface.xml", cancellationToken: cts.Token);
+            cascade4Thread_filepath = await OpenCVEnv.GetFilePathTaskAsync("OpenCVForUnityExample/objdetect/haarcascade_frontalface_alt.xml", cancellationToken: cts.Token);
 
             Debug.Log("Preparing file access complete!");
 
@@ -219,7 +220,7 @@ namespace NrealLightWithOpenCVForUnityExample
             cascade.load(cascade_filepath);
             if (cascade.empty())
             {
-                Debug.LogError("cascade file is not loaded. Please copy from “OpenCVForUnity/StreamingAssets/OpenCVForUnity/objdetect/” to “Assets/StreamingAssets/OpenCVForUnity/objdetect/” folder. ");
+                Debug.LogError("cascade file is not loaded. Please copy from “OpenCVForUnity/StreamingAssets/OpenCVForUnityExample/objdetect/” to “Assets/StreamingAssets/OpenCVForUnityExample/objdetect/” folder. ");
             }
 
 
@@ -227,10 +228,10 @@ namespace NrealLightWithOpenCVForUnityExample
             cascade4Thread.load(cascade4Thread_filepath);
             if (cascade4Thread.empty())
             {
-                Debug.LogError("cascade file is not loaded. Please copy from “OpenCVForUnity/StreamingAssets/OpenCVForUnity/objdetect/” to “Assets/StreamingAssets/OpenCVForUnity/objdetect/” folder. ");
+                Debug.LogError("cascade file is not loaded. Please copy from “OpenCVForUnity/StreamingAssets/OpenCVForUnityExample/objdetect/” to “Assets/StreamingAssets/OpenCVForUnityExample/objdetect/” folder. ");
             }
 
-            webCamTextureToMatHelper.outputColorFormat = Source2MatHelperColorFormat.GRAY;
+            webCamTextureToMatHelper.OutputColorFormat = Source2MatHelperColorFormat.GRAY;
             webCamTextureToMatHelper.Initialize();
         }
         ////
@@ -263,23 +264,23 @@ namespace NrealLightWithOpenCVForUnityExample
 
             /*
             cascade = new CascadeClassifier();
-            cascade.load(Utils.getFilePath("OpenCVForUnity/objdetect/lbpcascade_frontalface.xml"));
+            cascade.load(OpenCVEnv.GetFilePath("OpenCVForUnityExample/objdetect/lbpcascade_frontalface.xml"));
 #if !UNITY_WSA_10_0 || UNITY_EDITOR
             // "empty" method is not working on the UWP platform.
             if (cascade.empty())
             {
-                Debug.LogError("cascade file is not loaded. Please copy from “OpenCVForUnity/StreamingAssets/OpenCVForUnity/objdetect/” to “Assets/StreamingAssets/OpenCVForUnity/objdetect/” folder. ");
+                Debug.LogError("cascade file is not loaded. Please copy from “OpenCVForUnity/StreamingAssets/OpenCVForUnityExample/objdetect/” to “Assets/StreamingAssets/OpenCVForUnityExample/objdetect/” folder. ");
             }
 #endif
 
             grayMat4Thread = new Mat();
             cascade4Thread = new CascadeClassifier();
-            cascade4Thread.load(Utils.getFilePath("OpenCVForUnity/objdetect/haarcascade_frontalface_alt.xml"));
+            cascade4Thread.load(OpenCVEnv.GetFilePath("OpenCVForUnity/objdetect/haarcascade_frontalface_alt.xml"));
 #if !UNITY_WSA_10_0 || UNITY_EDITOR
             // "empty" method is not working on the UWP platform.
             if (cascade4Thread.empty())
             {
-                Debug.LogError("cascade file is not loaded. Please copy from “OpenCVForUnity/StreamingAssets/OpenCVForUnity/objdetect/” to “Assets/StreamingAssets/OpenCVForUnity/objdetect/” folder. ");
+                Debug.LogError("cascade file is not loaded. Please copy from “OpenCVForUnity/StreamingAssets/OpenCVForUnityExample/objdetect/” to “Assets/StreamingAssets/OpenCVForUnityExample/objdetect/” folder. ");
             }
 #endif
             */
@@ -353,7 +354,7 @@ namespace NrealLightWithOpenCVForUnityExample
                 if (enableDownScale)
                 {
                     downScaleMat = imageOptimizationHelper.GetDownScaleMat(grayMat);
-                    DOWNSCALE_RATIO = imageOptimizationHelper.downscaleRatio;
+                    DOWNSCALE_RATIO = imageOptimizationHelper.DownscaleRatio;
                 }
                 else
                 {
@@ -433,7 +434,7 @@ namespace NrealLightWithOpenCVForUnityExample
                     DrawDownScaleFaceRects(grayMat, resultObjects.ToArray(), DOWNSCALE_RATIO, COLOR_WHITE, 6);
                 }
 
-                Utils.matToTexture2D(grayMat, texture);
+                OpenCVMatUtils.MatToTexture2D(grayMat, texture);
             }
 
             if (webCamTextureToMatHelper.IsPlaying())
@@ -667,7 +668,7 @@ namespace NrealLightWithOpenCVForUnityExample
         /// </summary>
         public void OnChangeCameraButtonClick()
         {
-            webCamTextureToMatHelper.requestedIsFrontFacing = !webCamTextureToMatHelper.requestedIsFrontFacing;
+            webCamTextureToMatHelper.RequestedIsFrontFacing = !webCamTextureToMatHelper.RequestedIsFrontFacing;
         }
 
         /// <summary>

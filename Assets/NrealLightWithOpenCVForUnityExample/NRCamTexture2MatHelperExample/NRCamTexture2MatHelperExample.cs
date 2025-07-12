@@ -1,11 +1,11 @@
 #if !(PLATFORM_LUMIN && !UNITY_EDITOR)
 
-using NrealLightWithOpenCVForUnity.UnityUtils.Helper;
+using NrealLightWithOpenCVForUnity.UnityIntegration.Helper.Source2Mat;
 using NRKernal;
 using OpenCVForUnity.CoreModule;
 using OpenCVForUnity.ImgprocModule;
-using OpenCVForUnity.UnityUtils;
-using OpenCVForUnity.UnityUtils.Helper;
+using OpenCVForUnity.UnityIntegration;
+using OpenCVForUnity.UnityIntegration.Helper.Source2Mat;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -77,13 +77,13 @@ namespace NrealLightWithOpenCVForUnityExample
         void Start()
         {
             webCamTextureToMatHelper = gameObject.GetComponent<NRCamTexture2MatHelper>();
-            webCamTextureToMatHelper.outputColorFormat = Source2MatHelperColorFormat.RGB;
+            webCamTextureToMatHelper.OutputColorFormat = Source2MatHelperColorFormat.RGB;
             webCamTextureToMatHelper.Initialize();
 
             // Update GUI state
-            rotate90DegreeToggle.isOn = webCamTextureToMatHelper.rotate90Degree;
-            flipVerticalToggle.isOn = webCamTextureToMatHelper.flipVertical;
-            flipHorizontalToggle.isOn = webCamTextureToMatHelper.flipHorizontal;
+            rotate90DegreeToggle.isOn = webCamTextureToMatHelper.Rotate90Degree;
+            flipVerticalToggle.isOn = webCamTextureToMatHelper.FlipVertical;
+            flipHorizontalToggle.isOn = webCamTextureToMatHelper.FlipHorizontal;
             applyComicFilterToggle.isOn = applyComicFilter;
         }
 
@@ -97,7 +97,7 @@ namespace NrealLightWithOpenCVForUnityExample
             Mat rgbMat = webCamTextureToMatHelper.GetMat();
 
             texture = new Texture2D(rgbMat.cols(), rgbMat.rows(), TextureFormat.RGB24, false);
-            Utils.matToTexture2D(rgbMat, texture);
+            OpenCVMatUtils.MatToTexture2D(rgbMat, texture);
 
             gameObject.GetComponent<Renderer>().material.mainTexture = texture;
 
@@ -158,7 +158,7 @@ namespace NrealLightWithOpenCVForUnityExample
                     Imgproc.putText(rgbMat, "W:" + rgbMat.width() + " H:" + rgbMat.height() + " SO:" + Screen.orientation, new Point(5, rgbMat.rows() - 10), Imgproc.FONT_HERSHEY_SIMPLEX, 1.0, new Scalar(255, 255, 255, 255), 2, Imgproc.LINE_AA, false);
                 }
 
-                Utils.matToTexture2D(rgbMat, texture);
+                OpenCVMatUtils.MatToTexture2D(rgbMat, texture);
             }
 
             if (webCamTextureToMatHelper.IsPlaying())
@@ -270,7 +270,7 @@ namespace NrealLightWithOpenCVForUnityExample
         /// </summary>
         public void OnChangeCameraButtonClick()
         {
-            webCamTextureToMatHelper.requestedIsFrontFacing = !webCamTextureToMatHelper.requestedIsFrontFacing;
+            webCamTextureToMatHelper.RequestedIsFrontFacing = !webCamTextureToMatHelper.RequestedIsFrontFacing;
         }
 
         /// <summary>
@@ -278,9 +278,9 @@ namespace NrealLightWithOpenCVForUnityExample
         /// </summary>
         public void OnRotate90DegreeToggleValueChanged()
         {
-            if (rotate90DegreeToggle.isOn != webCamTextureToMatHelper.rotate90Degree)
+            if (rotate90DegreeToggle.isOn != webCamTextureToMatHelper.Rotate90Degree)
             {
-                webCamTextureToMatHelper.rotate90Degree = rotate90DegreeToggle.isOn;
+                webCamTextureToMatHelper.Rotate90Degree = rotate90DegreeToggle.isOn;
             }
         }
 
@@ -289,9 +289,9 @@ namespace NrealLightWithOpenCVForUnityExample
         /// </summary>
         public void OnFlipVerticalToggleValueChanged()
         {
-            if (flipVerticalToggle.isOn != webCamTextureToMatHelper.flipVertical)
+            if (flipVerticalToggle.isOn != webCamTextureToMatHelper.FlipVertical)
             {
-                webCamTextureToMatHelper.flipVertical = flipVerticalToggle.isOn;
+                webCamTextureToMatHelper.FlipVertical = flipVerticalToggle.isOn;
             }
         }
 
@@ -300,9 +300,9 @@ namespace NrealLightWithOpenCVForUnityExample
         /// </summary>
         public void OnFlipHorizontalToggleValueChanged()
         {
-            if (flipHorizontalToggle.isOn != webCamTextureToMatHelper.flipHorizontal)
+            if (flipHorizontalToggle.isOn != webCamTextureToMatHelper.FlipHorizontal)
             {
-                webCamTextureToMatHelper.flipHorizontal = flipHorizontalToggle.isOn;
+                webCamTextureToMatHelper.FlipHorizontal = flipHorizontalToggle.isOn;
             }
         }
 
